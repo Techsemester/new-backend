@@ -25,4 +25,4 @@ python-decouple>=3.4.0,<3.49
 ##python-libmagic==0.4.0
 django-upload-validator>=1.1.5<1.1.9
 django-import-export>=2.6.1,<2.6.8
-django-ckeditor>=6.1.0,6.1.7
+django-ckeditor>=6.1.0,<6.1.7
