@@ -9,7 +9,7 @@ urlpatterns = [
     path('', QuestionUsersViewSets.as_view(), name='questioner'),
     path('answers', AnswersQuestionUsersViewSets.as_view(), name='answers'),
     path('chioma', FileList.as_view(), name='chioma'),
-    path('panda', FileListPandas.as_view(), name='pandas'),
+    # path('panda', FileListPandas.as_view(), name='pandas'),
     path('random', QuestionsRandomFromDifferentUsers.as_view(), name='random'),
     path('<slug:slug>', UpdateQuestionsViewSets.as_view(), name='update'),
 ]

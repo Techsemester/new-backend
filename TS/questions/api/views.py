@@ -1,6 +1,6 @@
 import json
 import csv
-import pandas as pd
+# import pandas as pd
 from django.conf import settings
 
 
@@ -145,11 +145,11 @@ class FileList(views.APIView):
         return Response(rows, status=status.HTTP_200_OK)
 
 
-class FileListPandas(views.APIView):
-
-    def get(self, request, format=None):
-        file = open(settings.TAGS_QUESTION_STACK)
-        rows = []
-        csvreader = pd.read_csv(file)
-        nicky = csvreader.to_json(orient = 'index')
-        return Response(nicky, status=status.HTTP_200_OK)
+# class FileListPandas(views.APIView):
+#
+#     def get(self, request, format=None):
+#         file = open(settings.TAGS_QUESTION_STACK)
+#         rows = []
+#         csvreader = pd.read_csv(file)
+#         nicky = csvreader.to_json(orient = 'index')
+#         return Response(nicky, status=status.HTTP_200_OK)
