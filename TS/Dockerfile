@@ -26,7 +26,7 @@ COPY ./ /usr/src/bic
 
 WORKDIR /usr/src/bic
 
-COPY ./bics /
+COPY ./techsemester /
 
 
 COPY ./entrypoint.sh /

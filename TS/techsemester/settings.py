@@ -1,7 +1,7 @@
 
 import os
 import sys
-from  import config
+from decouple import config
 from datetime import timedelta
 
 
