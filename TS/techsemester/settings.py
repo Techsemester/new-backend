@@ -198,6 +198,7 @@ ACCOUNT_AUTHENTICATION_METHOD = 'email'
 AUTHENTICATION_METHOD = 'email'
 EMAIL_CONFIRMATION_AUTHENTICATED_REDIRECT_URL = '/'
 SOCIALACCOUNT_EMAIL_VERIFICATION = 'none'
+DEFAULT_AUTO_FIELD='django.db.models.AutoField'
 
 if (len(sys.argv) >= 2 and sys.argv[1] == 'runserver'):
     EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
