@@ -5,7 +5,7 @@ COPY ./requirements.txt .
 RUN pip install --upgrade pip
 
 RUN apk update \
-    && apk add --update --no-cache --virtual .pynacl_deps build-deps gcc python3 musl-dev \
+    && apk add --update --no-cache --virtual build-deps gcc python3 musl-dev \
     && apk add postgresql \
     && apk add postgresql-dev \
     && pip install psycopg2 \
@@ -16,7 +16,6 @@ RUN apk update \
     && apk add jpeg-dev zlib-dev libjpeg \
     && python3 -m pip install --upgrade cryptography \
     && pip install Pillow \
-    && pip install "poetry==$POETRY_VERSION" \
     && apk del build-deps
 
 RUN pip install -r /requirements.txt
