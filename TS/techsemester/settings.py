@@ -62,9 +62,9 @@ REST_FRAMEWORK = {
     'DEFAULT_FILTER_BACKENDS': (
         'django_filters.rest_framework.DjangoFilterBackend',
     ),
-    # 'DEFAULT_PERMISSION_CLASSES': [
-    #     'rest_framework.permissions.AllowAny',
-    # ],
+    'DEFAULT_PERMISSION_CLASSES': [
+        'rest_framework.permissions.AllowAny',
+    ],
     'DEFAULT_THROTTLE_CLASSES': [
         'rest_framework.throttling.AnonRateThrottle',
         'rest_framework.throttling.UserRateThrottle'
@@ -187,6 +187,7 @@ AUTH_USER_MODEL = 'users.User'
 
 TAGS_QUESTION_STACK=os.path.join(BASE_DIR, 'chioma/QueryResults.csv')
 COUNTRY_DIAL=os.path.join(BASE_DIR, 'chioma/country/country_dial.json')
+TAGS_QUESTIONS=os.path.join(BASE_DIR, 'chioma/country/tags.json')
 COUNTRY_CODE=os.path.join(BASE_DIR, 'chioma/country/CountryState.json')
 COUNTRY_STACK=os.path.join(BASE_DIR, 'chioma/country/country_number.json')
 

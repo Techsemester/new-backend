@@ -1,9 +1,16 @@
 from rest_framework import serializers
 
-from questions.models import Question, Answer, Vote
+from questions.models import Question, Answer, Vote, TagsQuestions
 
 from users.models import User
 from users.api.serializers import CountrySerializers, StateOnlyRetrieveSerializers
+
+
+class TagQuestionSerializer(serializers.ModelSerializer):
+
+    class Meta:
+        model = TagsQuestions
+        fields = ('id', 'title', 'slug')
 
 
 class QuestionSerializer(serializers.ModelSerializer):
@@ -11,10 +18,17 @@ class QuestionSerializer(serializers.ModelSerializer):
     total_answers = serializers.SerializerMethodField(method_name='count_answers')
     all_answers = serializers.SerializerMethodField(method_name='retrieve_all_answers')
 
+    tags = serializers.PrimaryKeyRelatedField(
+        many=True,
+        queryset=TagsQuestions.objects.all()
+    )
+
+    user = serializers.PrimaryKeyRelatedField(queryset=User.objects.all())
+
     class Meta:
         model = Question
         fields = ['id', 'user', 'create_date', 'body', 'update_date', 'active', 'total_answers', 'title',
-                  'slug', 'body', 'url', 'imageUrl', 'audio_url', 'video_url', 'youtube_url', 'all_answers']
+                  'slug', 'body', 'url', 'imageUrl', 'audio_url', 'video_url', 'youtube_url', 'all_answers', 'tags']
         lookup_field = 'slug'
         read_only_fields = ('id', 'slug', 'create_date', 'update_date',)
 
@@ -84,3 +98,4 @@ class UserProfileDetailSerializers(serializers.ModelSerializer):
 
 class QuestionsUsersSerializers(QuestionSerializer):
     user = UserProfileDetailSerializers(read_only=True)
+    tags = TagQuestionSerializer(read_only=True, many=True)

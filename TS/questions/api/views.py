@@ -52,6 +52,34 @@ def country_state(request):
 
     return Response(arrayArrs, status=status.HTTP_200_OK)
 
+@api_view(['GET',])
+def tags(request):
+    """
+    Get all active questions on the system
+    Deliver result 20 items per page.
+    """
+    file = open(settings.TAGS_QUESTIONS, "r")
+    industry_post = json.load(file)
+
+    arrayArrs = []
+    count = 0
+
+    for n in industry_post:
+        count = count + 1
+        post = {
+            "title": n,
+            "approval": True
+        }
+        fields = {
+            "pk": count,
+            "model": "questions.tagsquestions",
+            "fields": post
+        }
+
+        arrayArrs.append(fields)
+
+    return Response(arrayArrs, status=status.HTTP_200_OK)
+
 
 class QuestionUsersViewSets(generics.ListCreateAPIView):
     """
@@ -61,13 +89,12 @@ class QuestionUsersViewSets(generics.ListCreateAPIView):
     permission_classes = (IsAuthenticated,)
 
     queryset = Question.objects.all().order_by('-create_date')
-    serializer_class = QuestionsUsersSerializers
+    serializer_class = QuestionSerializer
 
     def get_queryset(self):
         """
             get all users questions
         """
-
         queryset = self.queryset.filter(user=self.request.user.id)
         return queryset
 
@@ -75,7 +102,7 @@ class QuestionUsersViewSets(generics.ListCreateAPIView):
         """
             post questions
         """
-        serializer.save()
+        serializer.save(user = self.request.user)
 
 
 class AnswersQuestionUsersViewSets(generics.ListCreateAPIView):

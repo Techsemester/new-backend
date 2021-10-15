@@ -5,6 +5,7 @@ app_name = 'questions'
 from questions.api.views import *
 
 urlpatterns = [
+    path('tags', tags, name="tags"),
     path('country', country_state, name="country"),
     path('', QuestionUsersViewSets.as_view(), name='questioner'),
     path('answers', AnswersQuestionUsersViewSets.as_view(), name='answers'),

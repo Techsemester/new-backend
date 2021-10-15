@@ -16,8 +16,19 @@ def slug_related_question(sender, instance, *args, **kwargs):
         instance.slug = unique_slug_question_generator(instance)
 
 
+class TagsQuestions(models.Model):
+    title = models.CharField(max_length=255, blank=True, null=True)
+    slug = models.CharField(max_length=255, blank=True, null=True)
+    approval = models.BooleanField(default=False)
+
+    class Meta:
+        verbose_name = 'TagsQuestion'
+        verbose_name_plural = 'TagsQuestions'
+
+
 class Question(models.Model):
     user                    = models.ForeignKey(User, on_delete=models.CASCADE)
+    tags                    = models.ManyToManyField(TagsQuestions, related_name='question_tags')
     create_date             = models.DateTimeField(auto_now_add=True)
     update_date             = models.DateTimeField(auto_now=True)
     title                   = models.CharField(max_length=255, blank=True, null=True)
@@ -72,6 +83,7 @@ class Vote(models.Model):
         verbose_name_plural = 'Votes'
 
 
+pre_save.connect(slug_generator, sender=TagsQuestions)
 pre_save.connect(slug_generator, sender=Question)
 pre_save.connect(slug_related_question, sender=Answer)
 pre_save.connect(slug_related_question, sender=Vote)
