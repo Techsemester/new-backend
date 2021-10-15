@@ -1,21 +1,15 @@
 import json
 import csv
-# import pandas as pd
 from django.conf import settings
-
-
-from users.notifications import sendEmail
-from django.utils import timezone
-from questions.models import Answer, Question, Vote
 from rest_framework import status, generics, views
-from rest_framework.decorators import api_view, permission_classes
-from rest_framework.parsers import FileUploadParser
+from rest_framework.decorators import api_view
 from rest_framework_simplejwt.authentication import JWTAuthentication
-from rest_framework.permissions import IsAuthenticated, IsAdminUser
+from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 
-from users.old_api.views import CustomPagination
-from questions.models import *
+from django_filters.rest_framework import DjangoFilterBackend
+from rest_framework.filters import OrderingFilter, SearchFilter
+
 from questions.api.serializers import *
 
 @api_view(['GET',])
@@ -79,6 +73,14 @@ def tags(request):
         arrayArrs.append(fields)
 
     return Response(arrayArrs, status=status.HTTP_200_OK)
+
+
+class SearchApproveInventionTitleSlug(generics.ListAPIView):
+    queryset = TagsQuestions.objects.filter(approval=True)
+    serializer_class = TagQuestionSerializer
+    filter_backends = (DjangoFilterBackend, OrderingFilter, SearchFilter)
+    ordering = ('-id',)
+    search_fields = ['title']
 
 
 class QuestionUsersViewSets(generics.ListCreateAPIView):

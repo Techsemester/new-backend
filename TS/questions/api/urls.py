@@ -12,5 +12,6 @@ urlpatterns = [
     path('chioma', FileList.as_view(), name='chioma'),
     # path('panda', FileListPandas.as_view(), name='pandas'),
     path('random', QuestionsRandomFromDifferentUsers.as_view(), name='random'),
+    path('search/tags', SearchApproveInventionTitleSlug.as_view(), name='search'),
     path('<slug:slug>', UpdateQuestionsViewSets.as_view(), name='update'),
 ]

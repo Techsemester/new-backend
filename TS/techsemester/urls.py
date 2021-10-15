@@ -22,7 +22,7 @@ urlpatterns = [
     path('', include('users.urls', namespace='default_user')),
     re_path('^', include('django.contrib.auth.urls')),
     path('api/users/', include('users.api.urls', namespace='users')),
-    path('api/ye/', include('users.old_api.urls', namespace='old_user')),
+    # path('api/ye/', include('users.old_api.urls', namespace='old_user')),
     path('api/question/', include('questions.api.urls')),
     path('rest/', schema_view.with_ui('swagger', cache_timeout=0), name='schema-swagger-ui'),
     re_path(r'^api/auth/accounts/', include('allauth.urls'), name='socialaccount_signup'),

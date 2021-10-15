@@ -10,7 +10,7 @@ class TagQuestionSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = TagsQuestions
-        fields = ('id', 'title', 'slug')
+        fields = ('id', 'title', 'slug', 'approval')
 
 
 class QuestionSerializer(serializers.ModelSerializer):
