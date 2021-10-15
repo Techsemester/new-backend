@@ -88,6 +88,9 @@ class User(AbstractBaseUser, PermissionsMixin):
     total_answers   = models.IntegerField(default=0)
     ts_rank         = models.IntegerField(default=0)
 
+    is_active = models.BooleanField(default=True)
+    is_staff = models.BooleanField(default=False)
+
     objects = UserManager()
     USERNAME_FIELD = 'email'
 
