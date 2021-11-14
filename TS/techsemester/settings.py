@@ -50,12 +50,12 @@ INSTALLED_APPS = [
     'import_export',
     'corsheaders',
     'ckeditor', 'django_filters',
+    'analytics',
 ]
 
 
 REST_FRAMEWORK = {
     'DEFAULT_AUTHENTICATION_CLASSES': [
-        # 'rest_framework.authentication.SessionAuthentication',
         'rest_framework.authentication.TokenAuthentication',
         'dj_rest_auth.jwt_auth.JWTCookieAuthentication',
     ],
@@ -106,7 +106,7 @@ ROOT_URLCONF = 'techsemester.urls'
 TEMPLATES = [
     {
         'BACKEND': 'django.template.backends.django.DjangoTemplates',
-        'DIRS': [BASE_DIR, 'users/templates'],
+        'DIRS': [BASE_DIR, 'templates'],
         'APP_DIRS': True,
         'OPTIONS': {
             'context_processors': [
@@ -214,6 +214,8 @@ EMAIL_USE_TLS = True
 EMAIL_PORT = 587
 
 REST_USE_JWT = True
+
+GEOIP_PATH = os.path.join(BASE_DIR, 'geoip')
 
 STATICFILES_FINDERS = (
     'django.contrib.staticfiles.finders.FileSystemFinder',

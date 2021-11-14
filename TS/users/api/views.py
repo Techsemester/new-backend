@@ -1,5 +1,6 @@
 import sys
 from django.conf import settings
+from django.shortcuts import render
 from django.contrib.auth import get_user_model
 from rest_framework import views, generics
 from django.http import HttpResponseRedirect
@@ -48,4 +49,9 @@ class CountriesStateViewSets(generics.ListAPIView):
     """Show all countries"""
     queryset = Countries.objects.all()
     serializer_class = CountryStateSerializers
+
+
+def EmailTemplates(request):
+    """View function for home page of site."""
+    return render(request, "email/communication.html")
 

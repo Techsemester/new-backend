@@ -1,6 +1,6 @@
 from rest_framework import serializers
 
-from questions.models import Question, Answer, Vote, TagsQuestions
+from questions.models import Question, Answer, Vote, TagsQuestions, BlogPost
 
 from users.models import User
 from users.api.serializers import CountrySerializers, StateOnlyRetrieveSerializers
@@ -27,8 +27,8 @@ class QuestionSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Question
-        fields = ['id', 'user', 'create_date', 'body', 'update_date', 'active', 'total_answers', 'title',
-                  'slug', 'body', 'url', 'imageUrl', 'audio_url', 'video_url', 'youtube_url', 'all_answers', 'tags']
+        fields = ('id', 'user', 'code', 'create_date', 'body', 'update_date', 'active', 'total_answers', 'title',
+                  'slug', 'body', 'url', 'imageUrl', 'audio_url', 'video_url', 'youtube_url', 'all_answers', 'tags')
         lookup_field = 'slug'
         read_only_fields = ('id', 'slug', 'create_date', 'update_date',)
 
@@ -44,6 +44,23 @@ class QuestionSerializer(serializers.ModelSerializer):
         return data
 
 
+class BlogPostsSerializer(serializers.ModelSerializer):
+
+    tags = serializers.PrimaryKeyRelatedField(
+        many=True,
+        queryset=TagsQuestions.objects.all()
+    )
+
+    user = serializers.PrimaryKeyRelatedField(queryset=User.objects.all())
+
+    class Meta:
+        model = BlogPost
+        fields = ('id', 'user', 'code', 'create_date', 'body', 'update_date', 'active', 'title',
+                  'slug', 'body', 'url', 'imageUrl', 'audio_url', 'video_url', 'youtube_url', 'tags')
+        lookup_field = 'slug'
+        read_only_fields = ('id', 'slug', 'create_date', 'update_date',)
+
+
 class AnswerSerializer(serializers.ModelSerializer):
     upvotes = serializers.SerializerMethodField(method_name='total_upvotes')
     downvotes = serializers.SerializerMethodField(method_name='total_downvotes')
@@ -51,8 +68,10 @@ class AnswerSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Answer
-        fields = ['id', 'user', 'question', 'create_date', 'body', 'update_date', 'active', 'upvotes', 'downvotes',
-                  'in_reply_to_details', 'slug', 'url', 'imageUrl', 'audio_url', 'video_url', 'youtube_url']
+        fields = ('id', 'user', 'slug', 'question', 'create_date', 'body', 'update_date', 'active', 'upvotes', 'downvotes',
+                  'in_reply_to_details', 'slug', 'url', 'imageUrl', 'audio_url', 'video_url', 'youtube_url')
+        lookup_field = 'slug'
+        read_only_fields = ('id', 'slug', 'create_date', 'update_date',)
 
     def reply_to_body(self, obj):
         """Give us the original answer body or return none if not applicable"""
@@ -97,5 +116,14 @@ class UserProfileDetailSerializers(serializers.ModelSerializer):
 
 
 class QuestionsUsersSerializers(QuestionSerializer):
+    user = UserProfileDetailSerializers(read_only=True)
+    tags = TagQuestionSerializer(read_only=True, many=True)
+
+
+class AnswerDetailsUsersSerializers(AnswerSerializer):
+    user = UserProfileDetailSerializers(read_only=True)
+
+
+class BlogPostUsersTagsDetailSerializers(BlogPostsSerializer):
     user = UserProfileDetailSerializers(read_only=True)
     tags = TagQuestionSerializer(read_only=True, many=True)

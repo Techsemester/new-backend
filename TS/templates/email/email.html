@@ -1,0 +1,83 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <!-- google fonts  -->
+    <link rel="preconnect" href="https://fonts.gstatic.com">
+    <link href="https://fonts.googleapis.com/css2?family=Nunito+Sans:wght@400;700&display=swap" rel="stylesheet">
+
+<!-- styles -->
+<style>
+body {
+  background: #555;
+}
+
+.content {
+  max-width: 500px;
+  margin: auto;
+  background: white;
+  padding: 10px;
+}
+</style>
+
+</head>
+
+<body style = "background: #555; max-width: 500px; margin: auto; background: white; padding: 10px; background-color:#F9F9F9; text-align: center; padding-top: 60px;">
+    <div>
+        <div>
+            <img src="https://www.spendwise.ng/static/assets/logo_email.png" /> <br><br>
+        </div>
+    </div>
+
+    <div>
+        <div class="banner">
+            <div style="background-color: #001ac6; height: 35px; color: #fff; align-items: center; font-size: 25px;">
+                <span style = "font-family: Nunito Sans;"> {{email_heading}} </span>
+            </div>
+            <div class="action-details">
+                <h2 class="bold-text" style = "font-family: Nunito Sans;">Hello {{user.username }}!</h2>
+            </div>
+
+            {% if otp %}
+            <div>
+                <span style = "font-size: 19px; font-family: Nunito Sans;">
+                You are receiving this email because you requested an OTP to manage your account on our platform.
+                </span>
+                <br><br>
+                <span style = "font-size: 19px; font-family: Nunito Sans;">Here is your code:</span>
+            </div>
+            <div>
+                <h2>{{otp}}</h2>
+
+                <span style = "font-size: 19px; font-family: Nunito Sans;">Copy the code above and use it.</span>
+                <br>
+                <br>
+            </div>
+            {% else %}
+            <div>
+                <span style = "font-size: 19px; font-family: Nunito Sans;">{{information}}</span>
+                <br><br>
+            </div>
+            {% endif %}
+
+        </div>
+        <div class="store-image-wrap">
+            <a href="https://play.google.com/store/apps/details?id=com.spendwise.spendwiseapp">
+            <img class="store-image" src="https://www.spendwise.ng/static/assets/storeimages.png" />
+            </a>
+        </div>
+        <div class="footer" >
+            <div>
+                <ul style="list-style-type:none; font-size: 15px; font-family: Nunito Sans;">
+                    <li>The SpendWise Team</li>
+                    <li>Lagos, Nigeria</li>
+                    <li>(Mon- Fri from 9am to 5pm)</li>
+                    <li>Email: admin@spendwise.ng</li>
+                </ul>
+            </div>
+        </div>
+    </div>
+</body>
+
+</html>
