@@ -36,6 +36,6 @@ RUN mkdir -p /vol/web/media
 RUN mkdir -p /vol/web/static
 RUN mkdir -p /vol/web/media_url
 
-EXPOSE 8000
+EXPOSE 9001
 
 ENTRYPOINT ["sh", "entrypoint.sh"]
