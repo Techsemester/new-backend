@@ -185,11 +185,11 @@ STATIC_ROOT = '/vol/web/static'
 
 AUTH_USER_MODEL = 'users.User'
 
-TAGS_QUESTION_STACK=os.path.join(BASE_DIR, 'chioma/QueryResults.csv')
-COUNTRY_DIAL=os.path.join(BASE_DIR, 'chioma/country/country_dial.json')
-TAGS_QUESTIONS=os.path.join(BASE_DIR, 'chioma/country/tags.json')
-COUNTRY_CODE=os.path.join(BASE_DIR, 'chioma/country/CountryState.json')
-COUNTRY_STACK=os.path.join(BASE_DIR, 'chioma/country/country_number.json')
+TAGS_QUESTION_STACK=os.path.join(BASE_DIR, 'json_file/QueryResults.csv')
+COUNTRY_DIAL=os.path.join(BASE_DIR, 'json_file/country/country_dial.json')
+TAGS_QUESTIONS=os.path.join(BASE_DIR, 'json_file/country/tags.json')
+COUNTRY_CODE=os.path.join(BASE_DIR, 'json_file/country/CountryState.json')
+COUNTRY_STACK=os.path.join(BASE_DIR, 'json_file/country/country_number.json')
 
 ACCOUNT_CONFIRM_EMAIL_ON_GET = True
 ACCOUNT_EMAIL_VERIFICATION = 'mandatory'

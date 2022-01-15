@@ -49,8 +49,8 @@ var CKBUILDER_CONFIG = {
 		'gruntfile.js',
 		'less',
 		'node_modules',
-		'package-lock.chioma',
-		'package.chioma',
+		'package-lock.json_file',
+		'package.json_file',
 		'tests'
 	],
 	plugins : {
