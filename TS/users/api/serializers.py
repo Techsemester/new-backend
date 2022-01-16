@@ -199,9 +199,6 @@ class RegistrationSerializer(RegisterSerializer):
             chosen_ip = request_ip
         country_name = g.country(chosen_ip)
         state_list = g.city(chosen_ip)
-
-        print(state_list)
-
         if country_name and country_name['country_name']:
             country = country_name['country_name']
 
