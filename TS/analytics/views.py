@@ -49,8 +49,6 @@ class AdminInventorInvestorAnalysis(generics.ListAPIView):
     authentication_classes = (JWTAuthentication,)
     permission_classes = [IsAuthenticated, ]
 
-    lookup_field = 'slug'
-
     def get_queryset(self):
         if self.request is None:
             return ObjectViewed.objects.none()

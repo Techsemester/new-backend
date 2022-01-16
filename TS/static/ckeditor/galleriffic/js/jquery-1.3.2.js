@@ -3385,7 +3385,7 @@ jQuery.extend({
 			xml: "application/xml, text/xml",
 			html: "text/html",
 			script: "text/javascript, application/javascript",
-			json: "application/chioma, text/javascript",
+			json: "application/json_file, text/javascript",
 			text: "text/plain",
 			_default: "*/*"
 		}
