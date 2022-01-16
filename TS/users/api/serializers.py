@@ -1,9 +1,10 @@
-import ast
-import json
+import sys
 from allauth.account.adapter import get_adapter
 from allauth.account.utils import setup_user_email
 from allauth.account import app_settings as allauth_settings
 from django.conf import settings
+from techsemester.utils import get_client_ip
+from django.contrib.gis.geoip2 import GeoIP2
 
 from django.utils.translation import ugettext_lazy as _
 from rest_framework import serializers, exceptions
@@ -18,21 +19,21 @@ class UserSerializer(serializers.ModelSerializer):
     """
         user serializer
     """
-    state = serializers.SerializerMethodField('get_state_details')
-    country = serializers.SerializerMethodField('get_country_details')
+    # state = serializers.SerializerMethodField('get_state_details')
+    # country = serializers.SerializerMethodField('get_country_details')
 
     class Meta:
         model = get_user_model()
         fields = '__all__'
         extra_kwargs = {'password': {'write_only': True, 'min_length': 8}}
 
-    def get_country_details(self, obj):
-        country = CountrySerializers(obj.country)
-        return country.data
-
-    def get_state_details(self, obj):
-        serializer = StateOnlyRetrieveSerializers(obj.state)
-        return serializer.data
+    # def get_country_details(self, obj):
+    #     country = CountrySerializers(obj.country)
+    #     return country.data
+    #
+    # def get_state_details(self, obj):
+    #     serializer = StateOnlyRetrieveSerializers(obj.state)
+    #     return serializer.data
 
     def create(self, validated_data):
         user = get_user_model().objects.create_user(**validated_data)
@@ -147,7 +148,6 @@ class RegistrationSerializer(RegisterSerializer):
         """
         pw  = data.get('password1')
         pw2 = data.get('password2')
-        city = data.get('city')
         dob = data.get('dob')
 
         phone = get_user_model().objects.filter(phone=data.get('phone'))
@@ -159,9 +159,9 @@ class RegistrationSerializer(RegisterSerializer):
             raise serializers.ValidationError({'errors': 'Incorrect phone number, check and retry'})
         if len(data.get('phone')) > 11:
             raise serializers.ValidationError({'errors': 'You have exceeded the amount number'})
-        if len(city) > 100:
+        if data.get('city') and len(data.get('city')) > 100:
             raise serializers.ValidationError({'errors': 'You have exceeded the character limit'})
-        if len(dob) > 25:
+        if dob and len(dob) > 25:
             raise serializers.ValidationError({'errors': 'Maximum is about 25 characters'})
         if pw != pw2:
             raise serializers.ValidationError({'errors': 'Password must match.'})
@@ -186,6 +186,28 @@ class RegistrationSerializer(RegisterSerializer):
         }
 
     def save(self, request):
+        request_ip = get_client_ip(request)
+
+        country = None
+        state = None
+
+
+        g = GeoIP2()
+        if (len(sys.argv) >= 2 and sys.argv[1] == 'runserver'):
+            chosen_ip = '72.14.207.99'
+        else:
+            chosen_ip = request_ip
+        country_name = g.country(chosen_ip)
+        state_list = g.city(chosen_ip)
+
+        print(state_list)
+
+        if country_name and country_name['country_name']:
+            country = country_name['country_name']
+
+        if state_list and state_list['city']:
+            state = state_list['city']
+
         adapter = get_adapter()
         user = adapter.new_user(request)
         self.cleaned_data = self.get_cleaned_data()
@@ -193,8 +215,6 @@ class RegistrationSerializer(RegisterSerializer):
         setup_user_email(request, user, [])
         first_name = self.cleaned_data.get('first_name')
         last_name = self.cleaned_data.get('last_name')
-        country = Countries.objects.filter(id=self.cleaned_data.get('country')).first()
-        state = StateProvidence.objects.filter(id=self.cleaned_data.get('state')).first()
         user.last_name = first_name
         user.last_name = last_name
         user.name = f"{last_name} {last_name}"
@@ -202,8 +222,8 @@ class RegistrationSerializer(RegisterSerializer):
         user.gender = self.cleaned_data.get('gender')
         user.city = self.cleaned_data.get('city')
         user.phone = self.cleaned_data.get('phone')
-        user.country = country
         user.state = state
+        user.country = country
         user.address = self.cleaned_data.get('address')
         user.save()
         return user

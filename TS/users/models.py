@@ -68,8 +68,8 @@ class User(AbstractBaseUser, PermissionsMixin):
 
     address         = models.CharField(max_length=254)
     city            = models.CharField(max_length=25)
-    country         = models.ForeignKey(Countries, on_delete=models.CASCADE, blank=True, null=True)
-    state           = models.ForeignKey(StateProvidence, on_delete=models.CASCADE, blank=True, null=True)
+    country         = models.CharField(max_length=254, blank=True, null=True)
+    state           = models.CharField(max_length=254, blank=True, null=True)
     phone           = models.CharField(max_length=11)
     email           = models.EmailField(max_length=255, unique=True)
     image           = models.ImageField(upload_to='users/user_image/', default=None, blank=True, null=True)

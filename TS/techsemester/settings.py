@@ -84,6 +84,7 @@ AUTHENTICATION_BACKENDS = [
 
 REST_AUTH_SERIALIZERS = {
     'LOGIN_SERIALIZER': 'users.api.serializers.UserLoginSerializer',
+    'USER_DETAILS_SERIALIZER': 'users.api.serializers.UserSerializer',
 }
 
 REST_AUTH_REGISTER_SERIALIZERS = {
