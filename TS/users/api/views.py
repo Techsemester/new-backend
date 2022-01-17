@@ -33,7 +33,7 @@ class RegisterConfirmRedirect(views.APIView):
         if (len(sys.argv) >= 2 and sys.argv[1] == 'runserver'):
             return HttpResponseRedirect(redirect_to='http://localhost:8080/login')
         else:
-            return HttpResponseRedirect(redirect_to='https://inventorinvestorng.com/login')
+            return HttpResponseRedirect(redirect_to='http://localhost:8080/login')
 
 
 class FacebookViewSets(SocialLoginView):
@@ -49,6 +49,7 @@ class CountriesStateViewSets(generics.ListAPIView):
     """Show all countries"""
     queryset = Countries.objects.all()
     serializer_class = CountryStateSerializers
+
 
 
 def EmailTemplates(request):

@@ -15,3 +15,6 @@ def home(request):
         resp['Vary'] = 'Accept-Encoding'
 
         return resp
+
+
+
