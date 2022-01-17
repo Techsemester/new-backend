@@ -30,10 +30,11 @@ class ManageUserView(generics.RetrieveUpdateAPIView):
 class RegisterConfirmRedirect(views.APIView):
     def get(self, request, *args, **kwargs):
         """return to home page after email confirmation"""
+        print({"args": args, "kwargs": kwargs})
         if (len(sys.argv) >= 2 and sys.argv[1] == 'runserver'):
-            return HttpResponseRedirect(redirect_to='http://localhost:8080/login')
+            return HttpResponseRedirect(redirect_to='http://localhost:3000/login')
         else:
-            return HttpResponseRedirect(redirect_to='http://localhost:8080/login')
+            return HttpResponseRedirect(redirect_to='http://localhost:3000/login')
 
 
 class FacebookViewSets(SocialLoginView):

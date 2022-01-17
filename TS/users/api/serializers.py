@@ -19,21 +19,11 @@ class UserSerializer(serializers.ModelSerializer):
     """
         user serializer
     """
-    # state = serializers.SerializerMethodField('get_state_details')
-    # country = serializers.SerializerMethodField('get_country_details')
 
     class Meta:
         model = get_user_model()
         fields = '__all__'
         extra_kwargs = {'password': {'write_only': True, 'min_length': 8}}
-
-    # def get_country_details(self, obj):
-    #     country = CountrySerializers(obj.country)
-    #     return country.data
-    #
-    # def get_state_details(self, obj):
-    #     serializer = StateOnlyRetrieveSerializers(obj.state)
-    #     return serializer.data
 
     def create(self, validated_data):
         user = get_user_model().objects.create_user(**validated_data)
@@ -125,8 +115,6 @@ class RegistrationSerializer(RegisterSerializer):
     """
     email = serializers.EmailField(required=allauth_settings.EMAIL_REQUIRED)
     username = serializers.CharField(required=False, write_only=True)
-    country = serializers.IntegerField(write_only=True, required=False)
-    state = serializers.IntegerField(write_only=True, required=False)
     first_name = serializers.CharField(required=True, write_only=True)
     last_name = serializers.CharField(required=True, write_only=True)
     phone = serializers.CharField(required=True, write_only=True)
@@ -148,7 +136,6 @@ class RegistrationSerializer(RegisterSerializer):
         """
         pw  = data.get('password1')
         pw2 = data.get('password2')
-        dob = data.get('dob')
 
         phone = get_user_model().objects.filter(phone=data.get('phone'))
         if phone.exists():
@@ -159,10 +146,6 @@ class RegistrationSerializer(RegisterSerializer):
             raise serializers.ValidationError({'errors': 'Incorrect phone number, check and retry'})
         if len(data.get('phone')) > 11:
             raise serializers.ValidationError({'errors': 'You have exceeded the amount number'})
-        if data.get('city') and len(data.get('city')) > 100:
-            raise serializers.ValidationError({'errors': 'You have exceeded the character limit'})
-        if dob and len(dob) > 25:
-            raise serializers.ValidationError({'errors': 'Maximum is about 25 characters'})
         if pw != pw2:
             raise serializers.ValidationError({'errors': 'Password must match.'})
         return data
@@ -178,8 +161,6 @@ class RegistrationSerializer(RegisterSerializer):
             'last_name': self.validated_data.get('last_name', ''),
             'dob': self.validated_data.get('dob', ''),
             'phone': self.validated_data.get('phone', ''),
-            'country': self.validated_data.get('state', ''),
-            'state': self.validated_data.get('state', ''),
             'city': self.validated_data.get('city', ''),
             'gender': self.validated_data.get('gender', ''),
             'address': self.validated_data.get('address', ''),
