@@ -58,13 +58,11 @@ class UserManager(BaseUserManager):
 
 
 class User(AbstractBaseUser, PermissionsMixin):
-
     GENDER_CHOICES = [
         ('Male', 'Male'),
         ('Female', 'Female'),
         ('Other', 'Other'),
     ]
-
     address         = models.CharField(max_length=254)
     city            = models.CharField(max_length=25)
     country         = models.CharField(max_length=254, blank=True, null=True)
@@ -81,10 +79,6 @@ class User(AbstractBaseUser, PermissionsMixin):
     first_name      = models.CharField(max_length=255, default=None, null=True)
     about           = models.CharField(max_length=255, default=None, null=True)
     username        = models.CharField(max_length=255, blank=True, null=True)
-    # total_questions = models.IntegerField(default=0)
-    # total_upvotes   = models.IntegerField(default=0)
-    # total_downvotes = models.IntegerField(default=0)
-    # total_answers   = models.IntegerField(default=0)
     ts_rank         = models.IntegerField(default=0)
     is_active = models.BooleanField(default=True)
     is_staff = models.BooleanField(default=False)
@@ -98,7 +92,7 @@ class User(AbstractBaseUser, PermissionsMixin):
 
 
 class LoginLogoutFail(models.Model):
-    user                = models.ForeignKey(User, on_delete=models.CASCADE)
+    user                = models.ForeignKey(User, on_delete=models.CASCADE, verbose_name='fail', related_name='fail')
     device              = models.CharField(max_length=254, default="Non-Mobile")
     login               = models.BooleanField(default=False)
     login_time          = models.DateTimeField(default=None, null=True)
@@ -119,7 +113,7 @@ class LoginLogoutFail(models.Model):
 
 
 class ContactUs(models.Model):
-    user            = models.ForeignKey(User, on_delete=models.CASCADE)
+    user            = models.ForeignKey(User, on_delete=models.CASCADE, verbose_name='contact', related_name='contact')
     device_type     = models.CharField(max_length=100, default="Android")
     created_at      = models.DateTimeField(auto_now_add=True)
     subject         = models.CharField(max_length=150)
@@ -135,7 +129,7 @@ class ContactUs(models.Model):
 
 
 class DeviceId(models.Model):
-    user            = models.ForeignKey(User, on_delete=models.CASCADE)
+    user            = models.ForeignKey(User, on_delete=models.CASCADE, verbose_name='device', related_name='device')
     device_id       = models.TextField(blank=True)
     created_at      = models.DateTimeField(auto_now_add=True)
     device_type     = models.CharField(max_length=100, default="Android")
@@ -150,8 +144,22 @@ class DeviceId(models.Model):
         verbose_name_plural = "Device IDs"
 
 
+class Follow(models.Model):
+    user = models.ForeignKey(User, on_delete=models.CASCADE, blank=True, null=True, verbose_name='follow',
+                             related_name='follows')
+    slug = models.CharField(max_length=255, blank=True, null=True)
+    create_date = models.DateTimeField(auto_now_add=True)
+    update_date = models.DateTimeField(auto_now=True)
+    following = models.BooleanField(default=False)
+    followers = models.BooleanField(default=False)
+
+    class Meta:
+        verbose_name = 'Follow'
+        verbose_name_plural = 'Follows'
+
+
 class ResetRequests(models.Model):
-    user            = models.ForeignKey(User, on_delete=models.CASCADE)
+    user            = models.ForeignKey(User, on_delete=models.CASCADE, verbose_name='reset', related_name='reset')
     token           = models.CharField(max_length=100)
     created_at      = models.DateTimeField(auto_now_add=True)
     consumed_at     = models.DateTimeField(auto_now=True)
@@ -177,7 +185,7 @@ class ResetRequests(models.Model):
 
 
 class OtherRequests(models.Model):
-    user            = models.ForeignKey(User, on_delete=models.CASCADE)
+    user            = models.ForeignKey(User, on_delete=models.CASCADE, verbose_name='request', related_name='request')
     created_at      = models.DateTimeField(auto_now_add=True)
     request_type    = models.CharField(max_length=100)
     details         = models.CharField(max_length=254, default=None, null=True)
@@ -191,7 +199,7 @@ class OtherRequests(models.Model):
 
 
 class ExperienceModels(models.Model):
-    user = models.ForeignKey(User, on_delete=models.CASCADE)
+    user = models.ForeignKey(User, on_delete=models.CASCADE, verbose_name='experience', related_name='experiences')
     experience = models.CharField(max_length=250)
     created_at = models.DateTimeField(auto_now_add=True)
 
@@ -204,7 +212,7 @@ class ExperienceModels(models.Model):
 
 
 class SkillsModels(models.Model):
-    user = models.ForeignKey(User, on_delete=models.CASCADE)
+    user = models.ForeignKey(User, on_delete=models.CASCADE, verbose_name='skill', related_name='skills')
     skill = models.CharField(max_length=250)
     created_at = models.DateTimeField(auto_now_add=True)
 
@@ -217,7 +225,7 @@ class SkillsModels(models.Model):
 
 
 class AwardsModels(models.Model):
-    user = models.ForeignKey(User, on_delete=models.CASCADE)
+    user = models.ForeignKey(User, on_delete=models.CASCADE, verbose_name='award', related_name='awards')
     title = models.CharField(max_length=250)
     image_url = models.CharField(max_length=350, default=None, null=True)
     created_at = models.DateTimeField(auto_now_add=True)
@@ -231,7 +239,7 @@ class AwardsModels(models.Model):
 
 
 class CertificationModels(models.Model):
-    user = models.ForeignKey(User, on_delete=models.CASCADE)
+    user = models.ForeignKey(User, on_delete=models.CASCADE, verbose_name='certificate', related_name='certificate')
     name = models.CharField(max_length=250)
     image_url = models.CharField(max_length=350, default=None, null=True)
     created_at = models.DateTimeField(auto_now_add=True)
@@ -245,7 +253,7 @@ class CertificationModels(models.Model):
 
 
 class ProjectsModels(models.Model):
-    user = models.ForeignKey(User, on_delete=models.CASCADE)
+    user = models.ForeignKey(User, on_delete=models.CASCADE, verbose_name='project', related_name='project')
     title = models.CharField(max_length=250, default=None, null=True)
     image_url = models.CharField(max_length=350, default=None, null=True)
     project_start_date = models.DateField(null=True)
@@ -262,7 +270,7 @@ class ProjectsModels(models.Model):
 
 
 class EducationModels(models.Model):
-    user = models.ForeignKey(User, on_delete=models.CASCADE)
+    user = models.ForeignKey(User, on_delete=models.CASCADE, verbose_name='education', related_name='education')
     experience = models.CharField(max_length=250)
     qualification = models.CharField(max_length=350, default=None, null=True)
     image_url = models.CharField(max_length=350, default=None, null=True)

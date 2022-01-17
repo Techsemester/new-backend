@@ -1,7 +1,9 @@
 from django.db import models
 from users.models import User
+from django.conf import settings
 from django.db.models.signals import pre_save
 from ckeditor.fields import RichTextField
+from django.core.validators import MaxValueValidator, MinValueValidator
 
 from techsemester.utils import unique_slug_generator, unique_slug_question_generator
 
@@ -47,6 +49,20 @@ class Question(models.Model):
     class Meta:
         verbose_name = 'Question'
         verbose_name_plural = 'Questions'
+
+    def number_of_rating(self):
+        ratings = RatingModel.objects.filter(question=self)
+        return len(ratings)
+
+    def average_rating(self):
+        sum = 0
+        ratings = RatingModel.objects.filter(question=self)
+        for rating in ratings:
+            sum += rating.stars
+        if len(ratings) > 0:
+            return sum / len(ratings)
+        else:
+            return 0
 
 
 class BlogPost(models.Model):
@@ -96,9 +112,12 @@ class Answer(models.Model):
 
 
 class Vote(models.Model):
-    user                  = models.ForeignKey(User, on_delete=models.CASCADE, blank=True, null=True, verbose_name='user_vote', related_name='votes')
-    question              = models.ForeignKey(Question, on_delete=models.CASCADE, blank=True, null=True)
-    answer                = models.ForeignKey(Answer, on_delete=models.CASCADE, blank=True, null=True)
+    user                  = models.ForeignKey(User, on_delete=models.CASCADE, blank=True, null=True,
+                                              verbose_name='user_vote', related_name='votes')
+    question              = models.ForeignKey(Question, on_delete=models.CASCADE, blank=True, null=True,
+                                              verbose_name='question_vote', related_name='question_votes')
+    answer                = models.ForeignKey(Answer, on_delete=models.CASCADE, blank=True, null=True,
+                                              verbose_name='answer_vote', related_name='answers_votes')
     slug                  = models.CharField(max_length=255, blank=True, null=True)
     create_date           = models.DateTimeField(auto_now_add=True)
     update_date           = models.DateTimeField(auto_now=True)
@@ -108,6 +127,23 @@ class Vote(models.Model):
     class Meta:
         verbose_name = 'Vote'
         verbose_name_plural = 'Votes'
+
+
+class RatingModel(models.Model):
+    user = models.ForeignKey(
+        settings.AUTH_USER_MODEL,
+        on_delete=models.CASCADE
+    )
+    question = models.ForeignKey(Question, on_delete=models.CASCADE, blank=True, null=True,
+                                 verbose_name='rating_question',  related_name='rating_questions')
+    stars = models.IntegerField(validators=[MinValueValidator(1), MaxValueValidator(5)])
+
+    createdAt = models.DateTimeField(auto_now_add=True)
+    updatedAt = models.DateTimeField(auto_now=True)
+
+    class Meta:
+        unique_together = (('user', 'question'),)
+        index_together = (('user', 'question'),)
 
 
 pre_save.connect(slug_generator, sender=TagsQuestions)

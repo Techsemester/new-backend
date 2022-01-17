@@ -13,7 +13,7 @@ from django.contrib.auth import get_user_model, authenticate
 from dj_rest_auth.registration.serializers import RegisterSerializer
 
 from users.models import *
-from questions.models import Question, Answer
+from questions.models import Question, Answer, Vote, RatingModel
 
 
 class UserSerializer(serializers.ModelSerializer):
@@ -26,15 +26,21 @@ class UserSerializer(serializers.ModelSerializer):
     education = serializers.SerializerMethodField('get_education')
     certificate = serializers.SerializerMethodField('get_certificate')
     experience = serializers.SerializerMethodField('get_experience')
+    followers = serializers.SerializerMethodField('get_followers')
+    following = serializers.SerializerMethodField('get_following')
 
     answer_total = serializers.SerializerMethodField('get_answers')
     question_total = serializers.SerializerMethodField('get_questions')
+    down_votes = serializers.SerializerMethodField('get_down_votes')
+    up_vote = serializers.SerializerMethodField('get_up_votes')
+    ratings = serializers.SerializerMethodField('get_questions_ratings')
 
     class Meta:
         model = get_user_model()
         fields = ('id', 'address', 'city', 'state', 'country', 'phone', 'email', 'image', 'updated', 'created',
                   'gender', 'dob', 'last_name', 'first_name', 'is_staff', 'is_active', 'experience', 'awards', 'skills',
-                  'projects', 'education', 'certificate', 'experience', 'answer_total', 'question_total')
+                  'projects', 'education', 'certificate', 'experience', 'answer_total', 'question_total', 'following',
+                  'followers', 'down_votes', 'up_vote', 'ratings')
         extra_kwargs = {'password': {'write_only': True, 'min_length': 8}}
 
     def get_skill(self, obj):
@@ -49,13 +55,40 @@ class UserSerializer(serializers.ModelSerializer):
         """get user skill"""
         return CertificationModels.objects.filter(user=obj.id).values()
 
+    def get_followers(self, obj):
+        """get user skill"""
+        return Follow.objects.filter(user=obj.id, followers=True).count()
+
+    def get_questions_ratings(self, obj):
+        """get user ratings"""
+        sum = 0
+        ratings = RatingModel.objects.filter(user=obj)
+        for rating in ratings:
+            sum += rating.stars
+        if len(ratings) > 0:
+            return sum / len(ratings)
+        else:
+            return 0
+
+    def get_following(self, obj):
+        """get user skill"""
+        return Follow.objects.filter(user=obj.id, following=True).count()
+
+    def get_down_votes(self, obj):
+        """get user skill"""
+        return Vote.objects.filter(user=obj.id, down=True).count()
+
+    def get_up_votes(self, obj):
+        """get user skill"""
+        return Vote.objects.filter(user=obj.id, up=True).count()
+
     def get_answers(self, obj):
         """get user skill"""
-        return Answer.objects.all().count()
+        return Answer.objects.filter(user=obj.id).count()
 
     def get_questions(self, obj):
         """get user skill"""
-        return Question.objects.all().count()
+        return Question.objects.filter(user=obj.id).count()
 
     def get_project(self, obj):
         """get user skill"""

@@ -15,6 +15,9 @@ class TagQuestionSerializer(serializers.ModelSerializer):
 
 class QuestionSerializer(serializers.ModelSerializer):
     # user = serializers.SerializerMethodField(method_name='get_user_details')
+    upvotes = serializers.SerializerMethodField(method_name='total_upvotes')
+    downvotes = serializers.SerializerMethodField(method_name='total_downvotes')
+
     total_answers = serializers.SerializerMethodField(method_name='count_answers')
     all_answers = serializers.SerializerMethodField(method_name='retrieve_all_answers')
 
@@ -28,7 +31,8 @@ class QuestionSerializer(serializers.ModelSerializer):
     class Meta:
         model = Question
         fields = ('id', 'user', 'code', 'create_date', 'body', 'update_date', 'active', 'total_answers', 'title',
-                  'slug', 'body', 'url', 'imageUrl', 'audio_url', 'video_url', 'youtube_url', 'all_answers', 'tags')
+                  'slug', 'body', 'url', 'imageUrl', 'audio_url', 'video_url', 'youtube_url', 'all_answers', 'tags',
+                  'upvotes', 'downvotes')
         lookup_field = 'slug'
         read_only_fields = ('id', 'slug', 'create_date', 'update_date',)
 
@@ -42,6 +46,14 @@ class QuestionSerializer(serializers.ModelSerializer):
         """
         data = Answer.objects.filter(question=obj.id).values()
         return data
+
+    def total_upvotes(self, obj):
+        votes = Vote.objects.filter(question=obj.id, up=True).count()
+        return votes
+
+    def total_downvotes(self, obj):
+        votes = Vote.objects.filter(question=obj.id, down=True).count()
+        return votes
 
 
 class BlogPostsSerializer(serializers.ModelSerializer):
