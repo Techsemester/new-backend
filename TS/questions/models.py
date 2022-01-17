@@ -96,8 +96,7 @@ class Answer(models.Model):
 
 
 class Vote(models.Model):
-    user                  = models.ForeignKey(User, on_delete=models.CASCADE, blank=True, null=True,
-                                              verbose_name='user_vote', related_name='votes')
+    user                  = models.ForeignKey(User, on_delete=models.CASCADE, blank=True, null=True, verbose_name='user_vote', related_name='votes')
     question              = models.ForeignKey(Question, on_delete=models.CASCADE, blank=True, null=True)
     answer                = models.ForeignKey(Answer, on_delete=models.CASCADE, blank=True, null=True)
     slug                  = models.CharField(max_length=255, blank=True, null=True)

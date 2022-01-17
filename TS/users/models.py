@@ -1,5 +1,4 @@
 from django.db import models
-# from django.contrib.auth.models import AbstractUser
 from django.contrib.auth.models import AbstractBaseUser, BaseUserManager, PermissionsMixin
 
 
@@ -77,18 +76,16 @@ class User(AbstractBaseUser, PermissionsMixin):
     created         = models.DateTimeField(auto_now_add=True)
     gender          = models.TextField(choices=GENDER_CHOICES, blank=True, null=True)
     dob             = models.CharField(max_length=25, blank=True, null=True)
-    education       = models.CharField(max_length=100, default=None, null=True)
     surname         = models.CharField(max_length=254, default=None, null=True)
     last_name         = models.CharField(max_length=254, default=None, null=True)
     first_name      = models.CharField(max_length=255, default=None, null=True)
     about           = models.CharField(max_length=255, default=None, null=True)
     username        = models.CharField(max_length=255, blank=True, null=True)
-    total_questions = models.IntegerField(default=0)
-    total_upvotes   = models.IntegerField(default=0)
-    total_downvotes = models.IntegerField(default=0)
-    total_answers   = models.IntegerField(default=0)
+    # total_questions = models.IntegerField(default=0)
+    # total_upvotes   = models.IntegerField(default=0)
+    # total_downvotes = models.IntegerField(default=0)
+    # total_answers   = models.IntegerField(default=0)
     ts_rank         = models.IntegerField(default=0)
-
     is_active = models.BooleanField(default=True)
     is_staff = models.BooleanField(default=False)
 

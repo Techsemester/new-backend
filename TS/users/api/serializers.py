@@ -13,21 +13,61 @@ from django.contrib.auth import get_user_model, authenticate
 from dj_rest_auth.registration.serializers import RegisterSerializer
 
 from users.models import *
+from questions.models import Question, Answer
 
 
 class UserSerializer(serializers.ModelSerializer):
     """
         user serializer
     """
+    skills = serializers.SerializerMethodField('get_skill')
+    awards = serializers.SerializerMethodField('get_awards')
+    projects = serializers.SerializerMethodField('get_project')
+    education = serializers.SerializerMethodField('get_education')
+    certificate = serializers.SerializerMethodField('get_certificate')
+    experience = serializers.SerializerMethodField('get_experience')
+
+    answer_total = serializers.SerializerMethodField('get_answers')
+    question_total = serializers.SerializerMethodField('get_questions')
 
     class Meta:
         model = get_user_model()
-        fields = '__all__'
+        fields = ('id', 'address', 'city', 'state', 'country', 'phone', 'email', 'image', 'updated', 'created',
+                  'gender', 'dob', 'last_name', 'first_name', 'is_staff', 'is_active', 'experience', 'awards', 'skills',
+                  'projects', 'education', 'certificate', 'experience', 'answer_total', 'question_total')
         extra_kwargs = {'password': {'write_only': True, 'min_length': 8}}
 
-    def create(self, validated_data):
-        user = get_user_model().objects.create_user(**validated_data)
-        return user
+    def get_skill(self, obj):
+        """get user skill"""
+        return SkillsModels.objects.filter(user=obj.id).values()
+
+    def get_awards(self, obj):
+        """get user skill"""
+        return AwardsModels.objects.filter(user=obj.id).values()
+
+    def get_certificate(self, obj):
+        """get user skill"""
+        return CertificationModels.objects.filter(user=obj.id).values()
+
+    def get_answers(self, obj):
+        """get user skill"""
+        return Answer.objects.all().count()
+
+    def get_questions(self, obj):
+        """get user skill"""
+        return Question.objects.all().count()
+
+    def get_project(self, obj):
+        """get user skill"""
+        return ProjectsModels.objects.filter(user=obj.id).values()
+
+    def get_education(self, obj):
+        """get user skill"""
+        return CertificationModels.objects.filter(user=obj.id).values()
+
+    def get_experience(self, obj):
+        """get user experience"""
+        return ExperienceModels.objects.filter(user=obj.id).values()
 
     def update(self, instance, validated_data):
         """Update a user, setting the password correctly and return it"""
