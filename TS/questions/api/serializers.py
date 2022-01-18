@@ -111,20 +111,10 @@ class UserProfileDetailSerializers(serializers.ModelSerializer):
     """
         few user details
     """
-    state = serializers.SerializerMethodField('get_state_details')
-    country = serializers.SerializerMethodField('get_country_details')
 
     class Meta:
         model = User
         fields = ('id', 'first_name', 'last_name', 'image', 'email', 'gender', 'country', 'state')
-
-    def get_country_details(self, obj):
-        country = CountrySerializers(obj.country)
-        return country.data
-
-    def get_state_details(self, obj):
-        serializer = StateOnlyRetrieveSerializers(obj.state)
-        return serializer.data
 
 
 class QuestionsUsersSerializers(QuestionSerializer):
