@@ -57,7 +57,7 @@ class UserSerializer(serializers.ModelSerializer):
 
     def get_followers(self, obj):
         """get user skill"""
-        return Follow.objects.filter(user=obj.id, followers=True).count()
+        return Follow.objects.filter(follower=obj.id, follow=True).count()
 
     def get_questions_ratings(self, obj):
         """get user ratings"""
@@ -72,7 +72,7 @@ class UserSerializer(serializers.ModelSerializer):
 
     def get_following(self, obj):
         """get user skill"""
-        return Follow.objects.filter(user=obj.id, following=True).count()
+        return Follow.objects.filter(user=obj.id, follow=True).count()
 
     def get_down_votes(self, obj):
         """get user skill"""

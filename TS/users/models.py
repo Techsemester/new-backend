@@ -145,13 +145,14 @@ class DeviceId(models.Model):
 
 
 class Follow(models.Model):
-    user = models.ForeignKey(User, on_delete=models.CASCADE, blank=True, null=True, verbose_name='follow',
+    user = models.ForeignKey(User, on_delete=models.CASCADE, null=True, verbose_name='follow',
                              related_name='follows')
+    follower = models.ForeignKey(User, on_delete=models.CASCADE, blank=True, null=True, verbose_name='follower',
+                                 related_name='followers')
     slug = models.CharField(max_length=255, blank=True, null=True)
     create_date = models.DateTimeField(auto_now_add=True)
     update_date = models.DateTimeField(auto_now=True)
-    following = models.BooleanField(default=False)
-    followers = models.BooleanField(default=False)
+    follow = models.BooleanField(default=False)
 
     class Meta:
         verbose_name = 'Follow'
@@ -248,8 +249,8 @@ class CertificationModels(models.Model):
         return '{}'.format(self.user)
 
     class Meta:
-        verbose_name = "User Award"
-        verbose_name_plural = "User Awards"
+        verbose_name = "User Certification"
+        verbose_name_plural = "User Certifications"
 
 
 class ProjectsModels(models.Model):
@@ -265,8 +266,8 @@ class ProjectsModels(models.Model):
         return '{}'.format(self.user)
 
     class Meta:
-        verbose_name = "User Experience"
-        verbose_name_plural = "User Experiences"
+        verbose_name = "User Project"
+        verbose_name_plural = "User Project"
 
 
 class EducationModels(models.Model):
