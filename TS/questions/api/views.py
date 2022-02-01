@@ -279,11 +279,18 @@ class FileList(views.APIView):
             rows.append(row[0])
         return Response(rows, status=status.HTTP_200_OK)
 
-# class FileListPandas(views.APIView):
-#
-#     def get(self, request, format=None):
-#         file = open(settings.TAGS_QUESTION_STACK)
-#         rows = []
-#         csvreader = pd.read_csv(file)
-#         nicky = csvreader.to_json(orient = 'index')
-#         return Response(nicky, status=status.HTTP_200_OK)
+
+class VoteUpViewSetSerializer(views.APIView):
+    """Get user update"""
+    serializer_class = VoteSerializer
+
+    authentication_classes = (JWTAuthentication,)
+    permission_classes = (IsAuthenticated,)
+
+    def post(self, request, format=None):
+        serializer = VoteSerializer(data=request.data)
+        print(request.data)
+        if serializer.is_valid():
+            serializer.save()
+            return Response(serializer.data, status=status.HTTP_201_CREATED)
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)

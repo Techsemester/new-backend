@@ -11,6 +11,7 @@ urlpatterns = [
     path('answers', AnswersQuestionUsersViewSets.as_view(), name='answers'),
     path('answers/<slug:slug>', UpdateRepliesAnswersViewSets.as_view(), name='answer_replies'),
     path('json_file', FileList.as_view(), name='json_file'),
+    path('vote-up', VoteUpViewSetSerializer.as_view(), name='vote-up'),
     path('blogs', BlogsPostsQuestionsViewSets.as_view(), name='blogs'),
     path('blogs/adminer', BlogsPostsQuestionsAdminViewSets.as_view(), name='blogs-adminer'),
     path('random', QuestionsRandomFromDifferentUsers.as_view(), name='random'),

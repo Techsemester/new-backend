@@ -43,7 +43,7 @@ class UnFollowViewSet(generics.UpdateAPIView):
 
 
 class ExperienceViewSet(generics.ListCreateAPIView):
-    """Experience"""
+    """Experience vi"""
     authentication_classes = (JWTAuthentication,)
     permission_classes = [IsAuthenticated, ]
 

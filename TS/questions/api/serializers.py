@@ -14,7 +14,6 @@ class TagQuestionSerializer(serializers.ModelSerializer):
 
 
 class QuestionSerializer(serializers.ModelSerializer):
-    # user = serializers.SerializerMethodField(method_name='get_user_details')
     upvotes = serializers.SerializerMethodField(method_name='total_upvotes')
     downvotes = serializers.SerializerMethodField(method_name='total_downvotes')
 
@@ -129,3 +128,12 @@ class AnswerDetailsUsersSerializers(AnswerSerializer):
 class BlogPostUsersTagsDetailSerializers(BlogPostsSerializer):
     user = UserProfileDetailSerializers(read_only=True)
     tags = TagQuestionSerializer(read_only=True, many=True)
+
+
+class VoteSerializer(serializers.ModelSerializer):
+
+    class Meta:
+        model = Vote
+        fields = ('id', 'user', 'question', 'answer', 'slug', 'create_data', 'update_data', 'up', 'down')
+        lookup_field = 'slug'
+        read_only_fields = ('id', 'slug', 'create_date', 'update_date',)

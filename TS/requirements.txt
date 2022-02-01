@@ -1,5 +1,6 @@
 Django~=3.2.5
 djangorestframework>=3.11.0,<3.13
+uWSGI>=2.0.19.1,<2.1
 gunicorn>=20.1.0,<20.3
 Pillow>=8.1.2,<8.4
 psycopg2>=2.8.6,<2.9
