@@ -109,7 +109,7 @@ class QuestionUsersViewSets(generics.ListCreateAPIView):
     permission_classes = (IsAuthenticated,)
 
     queryset = Question.objects.all().order_by('-create_date')
-    serializer_class = QuestionSerializer
+    serializer_class = QuestionsUsersSerializers
 
     def get_queryset(self):
         """
@@ -122,6 +122,7 @@ class QuestionUsersViewSets(generics.ListCreateAPIView):
         """
             post questions
         """
+        serializer_class = QuestionSerializer
         serializer.save(user=self.request.user)
 
 
@@ -207,8 +208,8 @@ class UpdateQuestionsViewSets(generics.RetrieveUpdateDestroyAPIView):
     serializer_class = QuestionsUsersSerializers
     lookup_field = 'slug'
 
-    def get_queryset(self):
-        get_return_methods(self, f"{self.request.user.first_name} {self.request.user.last_name} viewed your posts")
+    # def get_queryset(self):
+    #     # return self.qu
 
     def perform_update(self, serializer):
         if serializer.is_valid():

@@ -40,7 +40,7 @@ class UserSerializer(serializers.ModelSerializer):
         fields = ('id', 'address', 'city', 'state', 'country', 'phone', 'email', 'image', 'updated', 'created',
                   'gender', 'dob', 'last_name', 'first_name', 'is_staff', 'is_active', 'experience', 'awards', 'skills',
                   'projects', 'education', 'certificate', 'experience', 'answer_total', 'question_total', 'following',
-                  'followers', 'down_votes', 'up_vote', 'ratings')
+                  'followers', 'down_votes', 'up_vote', 'ratings', 'about')
         extra_kwargs = {'password': {'write_only': True, 'min_length': 8}}
 
     def get_skill(self, obj):
