@@ -134,6 +134,13 @@ class VoteSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Vote
-        fields = ('id', 'user', 'question', 'answer', 'slug', 'create_data', 'update_data', 'up', 'down')
+        fields = ('id', 'user', 'question', 'answer', 'slug', 'up', 'down', 'create_date')
         lookup_field = 'slug'
-        read_only_fields = ('id', 'slug', 'create_date', 'update_date',)
+        read_only_fields = ('id', 'slug', 'create_date', 'update_date', )
+
+        # def create(self, validated_data):
+        #     created = Vote.objects.get_or_create(
+        #         answer=validated_data.get('user', None),
+        #         question=validated_data.get('question', None),
+        #         defaults={'user': validated_data.get('user', None)})
+        #     return created

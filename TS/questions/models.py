@@ -150,5 +150,4 @@ pre_save.connect(slug_generator, sender=TagsQuestions)
 pre_save.connect(slug_generator, sender=Question)
 pre_save.connect(slug_generator, sender=BlogPost)
 pre_save.connect(slug_related_question, sender=Answer)
-pre_save.connect(slug_related_question, sender=Vote)
 

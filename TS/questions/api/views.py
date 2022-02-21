@@ -281,17 +281,10 @@ class FileList(views.APIView):
         return Response(rows, status=status.HTTP_200_OK)
 
 
-class VoteUpViewSetSerializer(views.APIView):
+class VoteUpViewSetSerializer(generics.ListCreateAPIView):
     """Get user update"""
     serializer_class = VoteSerializer
-
+    queryset = Vote.objects.all()
     authentication_classes = (JWTAuthentication,)
     permission_classes = (IsAuthenticated,)
 
-    def post(self, request, format=None):
-        serializer = VoteSerializer(data=request.data)
-        print(request.data)
-        if serializer.is_valid():
-            serializer.save()
-            return Response(serializer.data, status=status.HTTP_201_CREATED)
-        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
