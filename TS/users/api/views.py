@@ -1,5 +1,6 @@
 import sys
 from django.conf import settings
+from django.shortcuts import render
 from django.contrib.auth import get_user_model
 from rest_framework import views, generics
 from django.http import HttpResponseRedirect
@@ -30,9 +31,9 @@ class RegisterConfirmRedirect(views.APIView):
     def get(self, request, *args, **kwargs):
         """return to home page after email confirmation"""
         if (len(sys.argv) >= 2 and sys.argv[1] == 'runserver'):
-            return HttpResponseRedirect(redirect_to='http://localhost:8080/login')
+            return HttpResponseRedirect(redirect_to='http://localhost:3000/login')
         else:
-            return HttpResponseRedirect(redirect_to='https://inventorinvestorng.com/login')
+            return HttpResponseRedirect(redirect_to='http://localhost:3000/login')
 
 
 class FacebookViewSets(SocialLoginView):
@@ -48,4 +49,10 @@ class CountriesStateViewSets(generics.ListAPIView):
     """Show all countries"""
     queryset = Countries.objects.all()
     serializer_class = CountryStateSerializers
+
+
+
+def EmailTemplates(request):
+    """View function for home page of site."""
+    return render(request, "email/communication.html")
 

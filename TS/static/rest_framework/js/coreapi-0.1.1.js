@@ -347,7 +347,7 @@ var CoreJSONCodec = function () {
   function CoreJSONCodec() {
     _classCallCheck(this, CoreJSONCodec);
 
-    this.mediaType = 'application/coreapi+chioma';
+    this.mediaType = 'application/coreapi+json_file';
   }
 
   _createClass(CoreJSONCodec, [{
@@ -374,7 +374,7 @@ module.exports = {
 'use strict';
 
 var corejson = require('./corejson');
-var json = require('./chioma');
+var json = require('./json_file');
 var text = require('./text');
 
 module.exports = {

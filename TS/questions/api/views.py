@@ -1,24 +1,20 @@
 import json
 import csv
-import pandas as pd
 from django.conf import settings
-
-
-from users.notifications import sendEmail
-from django.utils import timezone
-from questions.models import Answer, Question, Vote
 from rest_framework import status, generics, views
-from rest_framework.decorators import api_view, permission_classes
-from rest_framework.parsers import FileUploadParser
+from rest_framework.decorators import api_view
 from rest_framework_simplejwt.authentication import JWTAuthentication
-from rest_framework.permissions import IsAuthenticated, IsAdminUser
+from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 
-from users.old_api.views import CustomPagination
-from questions.models import *
-from questions.api.serializers import *
+from django_filters.rest_framework import DjangoFilterBackend
+from rest_framework.filters import OrderingFilter, SearchFilter
 
-@api_view(['GET',])
+from questions.api.serializers import *
+from analytics.signals import manageUsers
+
+
+@api_view(['GET', ])
 def country_state(request):
     """
     Get all active questions on the system
@@ -53,6 +49,58 @@ def country_state(request):
     return Response(arrayArrs, status=status.HTTP_200_OK)
 
 
+@api_view(['GET', ])
+def tags(request):
+    """
+    Get all active questions on the system
+    Deliver result 20 items per page.
+    """
+    file = open(settings.TAGS_QUESTIONS, "r")
+    industry_post = json.load(file)
+
+    arrayArrs = []
+    count = 0
+
+    for n in industry_post:
+        count = count + 1
+        post = {
+            "title": n,
+            "approval": True
+        }
+        fields = {
+            "pk": count,
+            "model": "questions.tagsquestions",
+            "fields": post
+        }
+
+        arrayArrs.append(fields)
+
+    return Response(arrayArrs, status=status.HTTP_200_OK)
+
+
+def get_return_methods(self, actions):
+
+    queryset = self.queryset.filter(slug=self.kwargs['slug']).first()
+
+    manageUsers({
+        'user': queryset.user,
+        'replies': self.request.user,
+        'instance': queryset,
+        'request': self.request,
+        "actions": actions
+    })
+
+    return self.queryset
+
+
+class SearchQuestionsTagsTitleSlug(generics.ListAPIView):
+    queryset = TagsQuestions.objects.filter(approval=True)
+    serializer_class = TagQuestionSerializer
+    filter_backends = (DjangoFilterBackend, OrderingFilter, SearchFilter)
+    ordering = ('-id',)
+    search_fields = ['title']
+
+
 class QuestionUsersViewSets(generics.ListCreateAPIView):
     """
         user fetch uses
@@ -67,9 +115,35 @@ class QuestionUsersViewSets(generics.ListCreateAPIView):
         """
             get all users questions
         """
-
         queryset = self.queryset.filter(user=self.request.user.id)
         return queryset
+
+    def perform_create(self, serializer):
+        """
+            post questions
+        """
+        serializer_class = QuestionSerializer
+        serializer.save(user=self.request.user)
+
+
+class BlogsPostsQuestionsViewSets(generics.ListAPIView):
+    """
+        show all blogs post metros from all list for admirers only
+    """
+    queryset = BlogPost.objects.all().order_by('-create_date')
+    serializer_class = BlogPostsSerializer
+
+
+class BlogsPostsQuestionsAdminViewSets(generics.ListCreateAPIView):
+    """
+        show all blogs post metros from all list for admirers only
+        add isAdminer here, admin only should be able to see this page
+    """
+    authentication_classes = (JWTAuthentication,)
+    permission_classes = (IsAuthenticated,)
+
+    queryset = BlogPost.objects.all().order_by('-create_date')
+    serializer_class = BlogPostsSerializer
 
     def perform_create(self, serializer):
         """
@@ -92,7 +166,6 @@ class AnswersQuestionUsersViewSets(generics.ListCreateAPIView):
         """
             get all users questions
         """
-
         queryset = self.queryset.filter(user=self.request.user.id)
         return queryset
 
@@ -100,7 +173,18 @@ class AnswersQuestionUsersViewSets(generics.ListCreateAPIView):
         """
             post questions
         """
-        serializer.save()
+        store = serializer.save()
+
+        question = Question.objects.filter(pk=self.request.data.get('question')).first()
+
+        if store:
+            manageUsers({
+                'user': question.user,
+                'replies': self.request.user,
+                'instance': question,
+                'request': self.request,
+                "actions": f"{self.request.user.first_name} {self.request.user.last_name} replied to you posts"
+            })
 
 
 class QuestionsRandomFromDifferentUsers(generics.ListAPIView):
@@ -114,7 +198,7 @@ class QuestionsRandomFromDifferentUsers(generics.ListAPIView):
     serializer_class = QuestionsUsersSerializers
 
 
-class UpdateQuestionsViewSets(generics.RetrieveUpdateAPIView):
+class UpdateQuestionsViewSets(generics.RetrieveUpdateDestroyAPIView):
     """
         retrieve questions and update it's roles
     """
@@ -124,14 +208,66 @@ class UpdateQuestionsViewSets(generics.RetrieveUpdateAPIView):
     serializer_class = QuestionsUsersSerializers
     lookup_field = 'slug'
 
-    def get_queryset(self):
-        queryset = Question.objects.filter(slug=self.kwargs['slug'])
-        return queryset
+    # def get_queryset(self):
+    #     # return self.qu
 
     def perform_update(self, serializer):
         if serializer.is_valid():
             save = serializer.save()
             return save
+
+
+class UpdateRepliesAnswersViewSets(generics.RetrieveUpdateDestroyAPIView):
+    """
+        retrieve questions and update it's roles
+    """
+    authentication_classes = (JWTAuthentication,)
+    permission_classes = (IsAuthenticated,)
+    queryset = Answer.objects.all()
+    serializer_class = AnswerDetailsUsersSerializers
+    lookup_field = 'slug'
+
+    # def get_queryset(self):
+    #     return self.queryset
+
+    def perform_update(self, serializer):
+        if serializer.is_valid():
+            save = serializer.save()
+            get_return_methods(self, f"{self.request.user.first_name} {self.request.user.last_name} replied to your post")
+            return save
+
+
+class UpdateBlogPostsAdminerQuestionsViewSets(generics.RetrieveUpdateAPIView):
+    """
+        retrieve questions and update it's roles,
+        the admin will have update only
+    """
+    authentication_classes = (JWTAuthentication,)
+    permission_classes = (IsAuthenticated,)
+    queryset = BlogPost.objects.all().order_by('-create_date')
+    serializer_class = BlogPostsSerializer
+    lookup_field = 'slug'
+
+    def get_queryset(self):
+        get_return_methods(self, f"{self.request.user.first_name} {self.request.user.last_name} updated blog post")
+
+    def perform_update(self, serializer):
+        if serializer.is_valid():
+            save = serializer.save()
+            return save
+
+
+class RetrievePostsViewSets(generics.RetrieveAPIView):
+    """
+        retrieve questions and update it's roles,
+        the admin will have update only
+    """
+    queryset = BlogPost.objects.all().order_by('-create_date')
+    serializer_class = BlogPostUsersTagsDetailSerializers
+    lookup_field = 'slug'
+
+    def get_queryset(self):
+        get_return_methods(self,  f"{self.request.user.first_name} {self.request.user.last_name} viewed a blog post")
 
 
 class FileList(views.APIView):
@@ -145,11 +281,10 @@ class FileList(views.APIView):
         return Response(rows, status=status.HTTP_200_OK)
 
 
-class FileListPandas(views.APIView):
+class VoteUpViewSetSerializer(generics.ListCreateAPIView):
+    """Get user update"""
+    serializer_class = VoteSerializer
+    queryset = Vote.objects.all()
+    authentication_classes = (JWTAuthentication,)
+    permission_classes = (IsAuthenticated,)
 
-    def get(self, request, format=None):
-        file = open(settings.TAGS_QUESTION_STACK)
-        rows = []
-        csvreader = pd.read_csv(file)
-        nicky = csvreader.to_json(orient = 'index')
-        return Response(nicky, status=status.HTTP_200_OK)

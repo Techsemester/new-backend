@@ -1,9 +1,10 @@
-import ast
-import json
+import sys
 from allauth.account.adapter import get_adapter
 from allauth.account.utils import setup_user_email
 from allauth.account import app_settings as allauth_settings
 from django.conf import settings
+from techsemester.utils import get_client_ip
+from django.contrib.gis.geoip2 import GeoIP2
 
 from django.utils.translation import ugettext_lazy as _
 from rest_framework import serializers, exceptions
@@ -12,31 +13,94 @@ from django.contrib.auth import get_user_model, authenticate
 from dj_rest_auth.registration.serializers import RegisterSerializer
 
 from users.models import *
+from questions.models import Question, Answer, Vote, RatingModel
 
 
 class UserSerializer(serializers.ModelSerializer):
     """
         user serializer
     """
-    state = serializers.SerializerMethodField('get_state_details')
-    country = serializers.SerializerMethodField('get_country_details')
+    skills = serializers.SerializerMethodField('get_skill')
+    awards = serializers.SerializerMethodField('get_awards')
+    projects = serializers.SerializerMethodField('get_project')
+    education = serializers.SerializerMethodField('get_education')
+    certificate = serializers.SerializerMethodField('get_certificate')
+    experience = serializers.SerializerMethodField('get_experience')
+    followers = serializers.SerializerMethodField('get_followers')
+    following = serializers.SerializerMethodField('get_following')
+
+    answer_total = serializers.SerializerMethodField('get_answers')
+    question_total = serializers.SerializerMethodField('get_questions')
+    down_votes = serializers.SerializerMethodField('get_down_votes')
+    up_vote = serializers.SerializerMethodField('get_up_votes')
+    ratings = serializers.SerializerMethodField('get_questions_ratings')
 
     class Meta:
         model = get_user_model()
-        fields = '__all__'
+        fields = ('id', 'address', 'city', 'state', 'country', 'phone', 'email', 'image', 'updated', 'created',
+                  'gender', 'dob', 'last_name', 'first_name', 'is_staff', 'is_active', 'experience', 'awards', 'skills',
+                  'projects', 'education', 'certificate', 'experience', 'answer_total', 'question_total', 'following',
+                  'followers', 'down_votes', 'up_vote', 'ratings', 'about')
         extra_kwargs = {'password': {'write_only': True, 'min_length': 8}}
 
-    def get_country_details(self, obj):
-        country = CountrySerializers(obj.country)
-        return country.data
+    def get_skill(self, obj):
+        """get user skill"""
+        return SkillsModels.objects.filter(user=obj.id).values()
 
-    def get_state_details(self, obj):
-        serializer = StateOnlyRetrieveSerializers(obj.state)
-        return serializer.data
+    def get_awards(self, obj):
+        """get user skill"""
+        return AwardsModels.objects.filter(user=obj.id).values()
 
-    def create(self, validated_data):
-        user = get_user_model().objects.create_user(**validated_data)
-        return user
+    def get_certificate(self, obj):
+        """get user skill"""
+        return CertificationModels.objects.filter(user=obj.id).values()
+
+    def get_followers(self, obj):
+        """get user skill"""
+        return Follow.objects.filter(follower=obj.id, follow=True).count()
+
+    def get_questions_ratings(self, obj):
+        """get user ratings"""
+        sum = 0
+        ratings = RatingModel.objects.filter(user=obj)
+        for rating in ratings:
+            sum += rating.stars
+        if len(ratings) > 0:
+            return sum / len(ratings)
+        else:
+            return 0
+
+    def get_following(self, obj):
+        """get user skill"""
+        return Follow.objects.filter(user=obj.id, follow=True).count()
+
+    def get_down_votes(self, obj):
+        """get user skill"""
+        return Vote.objects.filter(user=obj.id, down=True).count()
+
+    def get_up_votes(self, obj):
+        """get user skill"""
+        return Vote.objects.filter(user=obj.id, up=True).count()
+
+    def get_answers(self, obj):
+        """get user skill"""
+        return Answer.objects.filter(user=obj.id).count()
+
+    def get_questions(self, obj):
+        """get user skill"""
+        return Question.objects.filter(user=obj.id).count()
+
+    def get_project(self, obj):
+        """get user skill"""
+        return ProjectsModels.objects.filter(user=obj.id).values()
+
+    def get_education(self, obj):
+        """get user skill"""
+        return CertificationModels.objects.filter(user=obj.id).values()
+
+    def get_experience(self, obj):
+        """get user experience"""
+        return ExperienceModels.objects.filter(user=obj.id).values()
 
     def update(self, instance, validated_data):
         """Update a user, setting the password correctly and return it"""
@@ -124,8 +188,6 @@ class RegistrationSerializer(RegisterSerializer):
     """
     email = serializers.EmailField(required=allauth_settings.EMAIL_REQUIRED)
     username = serializers.CharField(required=False, write_only=True)
-    country = serializers.IntegerField(write_only=True, required=False)
-    state = serializers.IntegerField(write_only=True, required=False)
     first_name = serializers.CharField(required=True, write_only=True)
     last_name = serializers.CharField(required=True, write_only=True)
     phone = serializers.CharField(required=True, write_only=True)
@@ -147,8 +209,6 @@ class RegistrationSerializer(RegisterSerializer):
         """
         pw  = data.get('password1')
         pw2 = data.get('password2')
-        city = data.get('city')
-        dob = data.get('dob')
 
         phone = get_user_model().objects.filter(phone=data.get('phone'))
         if phone.exists():
@@ -159,10 +219,6 @@ class RegistrationSerializer(RegisterSerializer):
             raise serializers.ValidationError({'errors': 'Incorrect phone number, check and retry'})
         if len(data.get('phone')) > 11:
             raise serializers.ValidationError({'errors': 'You have exceeded the amount number'})
-        if len(city) > 100:
-            raise serializers.ValidationError({'errors': 'You have exceeded the character limit'})
-        if len(dob) > 25:
-            raise serializers.ValidationError({'errors': 'Maximum is about 25 characters'})
         if pw != pw2:
             raise serializers.ValidationError({'errors': 'Password must match.'})
         return data
@@ -178,14 +234,31 @@ class RegistrationSerializer(RegisterSerializer):
             'last_name': self.validated_data.get('last_name', ''),
             'dob': self.validated_data.get('dob', ''),
             'phone': self.validated_data.get('phone', ''),
-            'country': self.validated_data.get('state', ''),
-            'state': self.validated_data.get('state', ''),
             'city': self.validated_data.get('city', ''),
             'gender': self.validated_data.get('gender', ''),
             'address': self.validated_data.get('address', ''),
         }
 
     def save(self, request):
+        request_ip = get_client_ip(request)
+
+        country = None
+        state = None
+
+
+        g = GeoIP2()
+        if (len(sys.argv) >= 2 and sys.argv[1] == 'runserver'):
+            chosen_ip = '72.14.207.99'
+        else:
+            chosen_ip = request_ip
+        country_name = g.country(chosen_ip)
+        state_list = g.city(chosen_ip)
+        if country_name and country_name['country_name']:
+            country = country_name['country_name']
+
+        if state_list and state_list['city']:
+            state = state_list['city']
+
         adapter = get_adapter()
         user = adapter.new_user(request)
         self.cleaned_data = self.get_cleaned_data()
@@ -193,8 +266,6 @@ class RegistrationSerializer(RegisterSerializer):
         setup_user_email(request, user, [])
         first_name = self.cleaned_data.get('first_name')
         last_name = self.cleaned_data.get('last_name')
-        country = Countries.objects.filter(id=self.cleaned_data.get('country')).first()
-        state = StateProvidence.objects.filter(id=self.cleaned_data.get('state')).first()
         user.last_name = first_name
         user.last_name = last_name
         user.name = f"{last_name} {last_name}"
@@ -202,8 +273,8 @@ class RegistrationSerializer(RegisterSerializer):
         user.gender = self.cleaned_data.get('gender')
         user.city = self.cleaned_data.get('city')
         user.phone = self.cleaned_data.get('phone')
-        user.country = country
         user.state = state
+        user.country = country
         user.address = self.cleaned_data.get('address')
         user.save()
         return user
