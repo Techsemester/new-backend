@@ -123,7 +123,7 @@ class RegistrationSerializer(RegisterSerializer):
         registration with allauth, and social login
     """
     email = serializers.EmailField(required=allauth_settings.EMAIL_REQUIRED)
-    username = serializers.CharField(required=False, write_only=True)
+    username = serializers.CharField(required=True, write_only=True)
     country = serializers.IntegerField(write_only=True, required=False)
     state = serializers.IntegerField(write_only=True, required=False)
     first_name = serializers.CharField(required=True, write_only=True)
@@ -174,8 +174,9 @@ class RegistrationSerializer(RegisterSerializer):
             'password2': self.validated_data.get('password2', ''),
             'email': self.validated_data.get('email', ''),
             'username': self.validated_data.get('username', ''),
-            'first_name': self.validated_data.get('first_name', ''),
-            'last_name': self.validated_data.get('last_name', ''),
+            'full_name': self.validated_data.get('full_name', ''),
+            # 'first_name': self.validated_data.get('first_name', ''),
+            # 'last_name': self.validated_data.get('last_name', ''),
             'dob': self.validated_data.get('dob', ''),
             'phone': self.validated_data.get('phone', ''),
             'country': self.validated_data.get('state', ''),
@@ -191,13 +192,16 @@ class RegistrationSerializer(RegisterSerializer):
         self.cleaned_data = self.get_cleaned_data()
         adapter.save_user(request, user, self)
         setup_user_email(request, user, [])
-        first_name = self.cleaned_data.get('first_name')
-        last_name = self.cleaned_data.get('last_name')
+        # first_name = self.cleaned_data.get('first_name')
+        # last_name = self.cleaned_data.get('last_name')
+        full_name = self.cleaned_data.get('full_name')
+        username = self.cleaned_data.get('username')
         country = Countries.objects.filter(id=self.cleaned_data.get('country')).first()
         state = StateProvidence.objects.filter(id=self.cleaned_data.get('state')).first()
-        user.last_name = first_name
-        user.last_name = last_name
-        user.name = f"{last_name} {last_name}"
+        # user.last_name = first_name
+        # user.last_name = last_name
+        user.full_name = f"{full_name}"
+        user.username = f"{username}"
         user.dob = self.cleaned_data.get('dob')
         user.gender = self.cleaned_data.get('gender')
         user.city = self.cleaned_data.get('city')

@@ -30,9 +30,9 @@ class RegisterConfirmRedirect(views.APIView):
     def get(self, request, *args, **kwargs):
         """return to home page after email confirmation"""
         if (len(sys.argv) >= 2 and sys.argv[1] == 'runserver'):
-            return HttpResponseRedirect(redirect_to='http://localhost:8080/login')
+            return HttpResponseRedirect(redirect_to='http://localhost:8000/login')
         else:
-            return HttpResponseRedirect(redirect_to='https://inventorinvestorng.com/login')
+            return HttpResponseRedirect(redirect_to='http://dev.techsemester.com/auth/login')
 
 
 class FacebookViewSets(SocialLoginView):

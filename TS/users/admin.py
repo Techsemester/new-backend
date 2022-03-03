@@ -8,7 +8,7 @@ from .models import (ContactUs, User, DeviceId, LoginLogoutFail,
 # Register your models here.
 class UserAdmin(ImportExportModelAdmin):
 	model = User
-	list_display = ['id', 'username', 'created', 'updated', 'email', 'first_name', 'surname', 'phone']
+	list_display = ['id', 'username', 'created', 'updated', 'email', 'first_name', 'last_name', 'phone']
 admin.site.register(User, UserAdmin)
 
 

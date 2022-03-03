@@ -34,11 +34,10 @@ INSTALLED_APPS = [
     'allauth',
     'allauth.account',
     'allauth.socialaccount',
-    'drf_yasg2',
+    'drf_yasg',
     'rest_framework',
     'rest_framework.authtoken',
     'dj_rest_auth', 'geoip2',
-    'django_cleanup.apps.CleanupConfig',
 
     'dj_rest_auth.registration',
     'allauth.socialaccount.providers.facebook',
@@ -49,7 +48,8 @@ INSTALLED_APPS = [
     'questions',
     'import_export',
     'corsheaders',
-    'ckeditor', 'django_filters',
+    'django_filters',
+    'ckeditor'
 ]
 
 
