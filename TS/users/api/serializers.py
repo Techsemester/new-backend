@@ -328,11 +328,14 @@ class StateOnlyRetrieveSerializers(serializers.ModelSerializer):
         model = StateProvidence
         fields = ['id', 'country', 'name']
 
-
-class UpdateImageSerializer(serializers.ModelSerializer):
+class UserProfileSerializer(serializers.ModelSerializer):
     """
-    allows users to update their profile photo
+    get a user profile
     """
     class Meta:
         model = get_user_model()
-        fields = ['image']
+        fields = "__all__"
+
+
+
+

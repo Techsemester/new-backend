@@ -5,8 +5,8 @@ from .views import *
 app_name = "users"
 
 urlpatterns = [
+    path('profile/<user_id>', UserProfileAPI.as_view(),name='profile'),
     path('update', ManageUserView.as_view(), name='user'),
-    path('update/photo',UpdateUserPhotoView.as_view(), name='user'),
     path('email', EmailTemplates, name='email_template'),
     path('auth/', include('dj_rest_auth.urls'), name='login'),
     path('auth/facebook', FacebookViewSets.as_view(), name='fb_login'),
