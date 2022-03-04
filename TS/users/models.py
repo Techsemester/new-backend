@@ -1,5 +1,4 @@
 from django.db import models
-# from django.contrib.auth.models import AbstractUser
 from django.contrib.auth.models import AbstractBaseUser, BaseUserManager, PermissionsMixin
 
 
@@ -59,17 +58,15 @@ class UserManager(BaseUserManager):
 
 
 class User(AbstractBaseUser, PermissionsMixin):
-
     GENDER_CHOICES = [
         ('Male', 'Male'),
         ('Female', 'Female'),
         ('Other', 'Other'),
     ]
-
     address         = models.CharField(max_length=254)
     city            = models.CharField(max_length=25)
-    country         = models.ForeignKey(Countries, on_delete=models.CASCADE, blank=True, null=True)
-    state           = models.ForeignKey(StateProvidence, on_delete=models.CASCADE, blank=True, null=True)
+    country         = models.CharField(max_length=254, blank=True, null=True)
+    state           = models.CharField(max_length=254, blank=True, null=True)
     phone           = models.CharField(max_length=11)
     email           = models.EmailField(max_length=255, unique=True)
     image           = models.ImageField(upload_to='users/user_image/', default=None, blank=True, null=True)
@@ -77,15 +74,13 @@ class User(AbstractBaseUser, PermissionsMixin):
     created         = models.DateTimeField(auto_now_add=True)
     gender          = models.TextField(choices=GENDER_CHOICES, blank=True, null=True)
     dob             = models.CharField(max_length=25, blank=True, null=True)
-    education       = models.CharField(max_length=100, default=None, null=True)
-    first_name         = models.CharField(max_length=255, default=None, null=True)
-    last_name         = models.CharField(max_length=255, default=None, null=True)
+    last_name         = models.CharField(max_length=254, default=None, null=True)
+    first_name      = models.CharField(max_length=255, default=None, null=True)
+    about           = models.CharField(max_length=255, default=None, null=True)
     username        = models.CharField(max_length=255, blank=True, null=True)
-    total_questions = models.IntegerField(default=0)
-    total_upvotes   = models.IntegerField(default=0)
-    total_downvotes = models.IntegerField(default=0)
-    total_answers   = models.IntegerField(default=0)
     ts_rank         = models.IntegerField(default=0)
+    is_active = models.BooleanField(default=True)
+    is_staff = models.BooleanField(default=False)
 
     objects = UserManager()
     USERNAME_FIELD = 'email'
@@ -96,7 +91,7 @@ class User(AbstractBaseUser, PermissionsMixin):
 
 
 class LoginLogoutFail(models.Model):
-    user                = models.ForeignKey(User, on_delete=models.CASCADE)
+    user                = models.ForeignKey(User, on_delete=models.CASCADE, verbose_name='fail', related_name='fail')
     device              = models.CharField(max_length=254, default="Non-Mobile")
     login               = models.BooleanField(default=False)
     login_time          = models.DateTimeField(default=None, null=True)
@@ -116,9 +111,8 @@ class LoginLogoutFail(models.Model):
         verbose_name_plural = "LoginLogoutFailures"
 
 
-
 class ContactUs(models.Model):
-    user            = models.ForeignKey(User, on_delete=models.CASCADE)
+    user            = models.ForeignKey(User, on_delete=models.CASCADE, verbose_name='contact', related_name='contact')
     device_type     = models.CharField(max_length=100, default="Android")
     created_at      = models.DateTimeField(auto_now_add=True)
     subject         = models.CharField(max_length=150)
@@ -133,9 +127,8 @@ class ContactUs(models.Model):
         verbose_name_plural = "Messages"
 
 
-
 class DeviceId(models.Model):
-    user            = models.ForeignKey(User, on_delete=models.CASCADE)
+    user            = models.ForeignKey(User, on_delete=models.CASCADE, verbose_name='device', related_name='device')
     device_id       = models.TextField(blank=True)
     created_at      = models.DateTimeField(auto_now_add=True)
     device_type     = models.CharField(max_length=100, default="Android")
@@ -150,9 +143,23 @@ class DeviceId(models.Model):
         verbose_name_plural = "Device IDs"
 
 
+class Follow(models.Model):
+    user = models.ForeignKey(User, on_delete=models.CASCADE, null=True, verbose_name='follow',
+                             related_name='follows')
+    follower = models.ForeignKey(User, on_delete=models.CASCADE, blank=True, null=True, verbose_name='follower',
+                                 related_name='followers')
+    slug = models.CharField(max_length=255, blank=True, null=True)
+    create_date = models.DateTimeField(auto_now_add=True)
+    update_date = models.DateTimeField(auto_now=True)
+    follow = models.BooleanField(default=False)
+
+    class Meta:
+        verbose_name = 'Follow'
+        verbose_name_plural = 'Follows'
+
 
 class ResetRequests(models.Model):
-    user            = models.ForeignKey(User, on_delete=models.CASCADE)
+    user            = models.ForeignKey(User, on_delete=models.CASCADE, verbose_name='reset', related_name='reset')
     token           = models.CharField(max_length=100)
     created_at      = models.DateTimeField(auto_now_add=True)
     consumed_at     = models.DateTimeField(auto_now=True)
@@ -176,11 +183,9 @@ class ResetRequests(models.Model):
         verbose_name = "Reset Request"
         verbose_name_plural = "Reset Requests"
 
-        
-
 
 class OtherRequests(models.Model):
-    user            = models.ForeignKey(User, on_delete=models.CASCADE)
+    user            = models.ForeignKey(User, on_delete=models.CASCADE, verbose_name='request', related_name='request')
     created_at      = models.DateTimeField(auto_now_add=True)
     request_type    = models.CharField(max_length=100)
     details         = models.CharField(max_length=254, default=None, null=True)
@@ -191,3 +196,92 @@ class OtherRequests(models.Model):
     class Meta:
         verbose_name = "Other Request"
         verbose_name_plural = "Other Requests"
+
+
+class ExperienceModels(models.Model):
+    user = models.ForeignKey(User, on_delete=models.CASCADE, verbose_name='experience', related_name='experiences')
+    experience = models.CharField(max_length=250)
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    def __str__(self):
+        return '{}'.format(self.user)
+
+    class Meta:
+        verbose_name = "User Experience"
+        verbose_name_plural = "User Experiences"
+
+
+class SkillsModels(models.Model):
+    user = models.ForeignKey(User, on_delete=models.CASCADE, verbose_name='skill', related_name='skills')
+    skill = models.CharField(max_length=250)
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    def __str__(self):
+        return '{}'.format(self.user)
+
+    class Meta:
+        verbose_name = "User Skill"
+        verbose_name_plural = "User Skills"
+
+
+class AwardsModels(models.Model):
+    user = models.ForeignKey(User, on_delete=models.CASCADE, verbose_name='award', related_name='awards')
+    title = models.CharField(max_length=250)
+    image_url = models.CharField(max_length=350, default=None, null=True)
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    def __str__(self):
+        return '{}'.format(self.user)
+
+    class Meta:
+        verbose_name = "User Award"
+        verbose_name_plural = "User Awards"
+
+
+class CertificationModels(models.Model):
+    user = models.ForeignKey(User, on_delete=models.CASCADE, verbose_name='certificate', related_name='certificate')
+    name = models.CharField(max_length=250)
+    image_url = models.CharField(max_length=350, default=None, null=True)
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    def __str__(self):
+        return '{}'.format(self.user)
+
+    class Meta:
+        verbose_name = "User Certification"
+        verbose_name_plural = "User Certifications"
+
+
+class ProjectsModels(models.Model):
+    user = models.ForeignKey(User, on_delete=models.CASCADE, verbose_name='project', related_name='project')
+    title = models.CharField(max_length=250, default=None, null=True)
+    image_url = models.CharField(max_length=350, default=None, null=True)
+    project_start_date = models.DateField(null=True)
+    project_launch_date = models.DateField(null=True)
+    description = models.TextField(null=True)
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    def __str__(self):
+        return '{}'.format(self.user)
+
+    class Meta:
+        verbose_name = "User Project"
+        verbose_name_plural = "User Project"
+
+
+class EducationModels(models.Model):
+    user = models.ForeignKey(User, on_delete=models.CASCADE, verbose_name='education', related_name='education')
+    experience = models.CharField(max_length=250)
+    qualification = models.CharField(max_length=350, default=None, null=True)
+    image_url = models.CharField(max_length=350, default=None, null=True)
+    name_of_school = models.CharField(max_length=350, default=None, null=True)
+    start_date = models.DateField(null=True)
+    end_date = models.DateField(null=True)
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    def __str__(self):
+        return '{}'.format(self.user)
+
+    class Meta:
+        verbose_name = "User Educational background"
+        verbose_name_plural = "User Educational backgrounds"

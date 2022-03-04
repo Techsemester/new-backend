@@ -1,5 +1,6 @@
 import sys
 from django.conf import settings
+from django.shortcuts import render
 from django.contrib.auth import get_user_model
 from rest_framework import views, generics
 from django.http import HttpResponseRedirect
@@ -10,7 +11,7 @@ from allauth.socialaccount.providers.facebook.views import FacebookOAuth2Adapter
 from allauth.socialaccount.providers.google.views import GoogleOAuth2Adapter
 
 from users.models import Countries
-from .serializers import CountryStateSerializers, UserSerializer
+from .serializers import CountryStateSerializers, UserSerializer,UpdateImageSerializer
 
 
 class ManageUserView(generics.RetrieveUpdateAPIView):
@@ -25,12 +26,19 @@ class ManageUserView(generics.RetrieveUpdateAPIView):
 
         return self.request.user
 
+class UpdateUserPhotoView(generics.RetrieveUpdateAPIView):
+    """Manage the authenticated user"""
+    queryset = get_user_model().objects.all()
+    serializer_class = UpdateImageSerializer
+    authentication_classes = (JWTAuthentication,)
+    permission_classes = (IsAuthenticated,)
+
 
 class RegisterConfirmRedirect(views.APIView):
     def get(self, request, *args, **kwargs):
         """return to home page after email confirmation"""
         if (len(sys.argv) >= 2 and sys.argv[1] == 'runserver'):
-            return HttpResponseRedirect(redirect_to='http://localhost:8000/login')
+            return HttpResponseRedirect(redirect_to='http://dev.techsemester.com/auth/login')
         else:
             return HttpResponseRedirect(redirect_to='http://dev.techsemester.com/auth/login')
 
@@ -48,4 +56,10 @@ class CountriesStateViewSets(generics.ListAPIView):
     """Show all countries"""
     queryset = Countries.objects.all()
     serializer_class = CountryStateSerializers
+
+
+
+def EmailTemplates(request):
+    """View function for home page of site."""
+    return render(request, "email/communication.html")
 

@@ -34,10 +34,11 @@ INSTALLED_APPS = [
     'allauth',
     'allauth.account',
     'allauth.socialaccount',
-    'drf_yasg',
+    'drf_yasg2',
     'rest_framework',
     'rest_framework.authtoken',
     'dj_rest_auth', 'geoip2',
+    'django_cleanup.apps.CleanupConfig',
 
     'dj_rest_auth.registration',
     'allauth.socialaccount.providers.facebook',
@@ -48,23 +49,22 @@ INSTALLED_APPS = [
     'questions',
     'import_export',
     'corsheaders',
-    'django_filters',
-    'ckeditor'
+    'ckeditor', 'django_filters',
+    'analytics',
 ]
 
 
 REST_FRAMEWORK = {
     'DEFAULT_AUTHENTICATION_CLASSES': [
-        # 'rest_framework.authentication.SessionAuthentication',
         'rest_framework.authentication.TokenAuthentication',
         'dj_rest_auth.jwt_auth.JWTCookieAuthentication',
     ],
     'DEFAULT_FILTER_BACKENDS': (
         'django_filters.rest_framework.DjangoFilterBackend',
     ),
-    # 'DEFAULT_PERMISSION_CLASSES': [
-    #     'rest_framework.permissions.AllowAny',
-    # ],
+    'DEFAULT_PERMISSION_CLASSES': [
+        'rest_framework.permissions.AllowAny',
+    ],
     'DEFAULT_THROTTLE_CLASSES': [
         'rest_framework.throttling.AnonRateThrottle',
         'rest_framework.throttling.UserRateThrottle'
@@ -84,6 +84,7 @@ AUTHENTICATION_BACKENDS = [
 
 REST_AUTH_SERIALIZERS = {
     'LOGIN_SERIALIZER': 'users.api.serializers.UserLoginSerializer',
+    'USER_DETAILS_SERIALIZER': 'users.api.serializers.UserSerializer',
 }
 
 REST_AUTH_REGISTER_SERIALIZERS = {
@@ -106,7 +107,7 @@ ROOT_URLCONF = 'techsemester.urls'
 TEMPLATES = [
     {
         'BACKEND': 'django.template.backends.django.DjangoTemplates',
-        'DIRS': [BASE_DIR, 'users/templates'],
+        'DIRS': [BASE_DIR, 'templates'],
         'APP_DIRS': True,
         'OPTIONS': {
             'context_processors': [
@@ -185,10 +186,11 @@ STATIC_ROOT = '/vol/web/static'
 
 AUTH_USER_MODEL = 'users.User'
 
-TAGS_QUESTION_STACK=os.path.join(BASE_DIR, 'chioma/QueryResults.csv')
-COUNTRY_DIAL=os.path.join(BASE_DIR, 'chioma/country/country_dial.json')
-COUNTRY_CODE=os.path.join(BASE_DIR, 'chioma/country/CountryState.json')
-COUNTRY_STACK=os.path.join(BASE_DIR, 'chioma/country/country_number.json')
+TAGS_QUESTION_STACK=os.path.join(BASE_DIR, 'json_file/QueryResults.csv')
+COUNTRY_DIAL=os.path.join(BASE_DIR, 'json_file/country/country_dial.json')
+TAGS_QUESTIONS=os.path.join(BASE_DIR, 'json_file/country/tags.json')
+COUNTRY_CODE=os.path.join(BASE_DIR, 'json_file/country/CountryState.json')
+COUNTRY_STACK=os.path.join(BASE_DIR, 'json_file/country/country_number.json')
 
 ACCOUNT_CONFIRM_EMAIL_ON_GET = True
 ACCOUNT_EMAIL_VERIFICATION = 'mandatory'
@@ -198,6 +200,7 @@ ACCOUNT_AUTHENTICATION_METHOD = 'email'
 AUTHENTICATION_METHOD = 'email'
 EMAIL_CONFIRMATION_AUTHENTICATED_REDIRECT_URL = '/'
 SOCIALACCOUNT_EMAIL_VERIFICATION = 'none'
+DEFAULT_AUTO_FIELD='django.db.models.AutoField'
 
 if (len(sys.argv) >= 2 and sys.argv[1] == 'runserver'):
     EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
@@ -205,15 +208,15 @@ else:
     EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
 
 ###########Email Message Settings###########
-DEFAULT_FROM_EMAIL = config('DEFAULT_FROM_EMAIL')
-SERVER_EMAIL = config('SERVER_EMAIL')
-EMAIL_HOST = config('EMAIL_HOST')
-EMAIL_PORT = config('EMAIL_PORT')
-EMAIL_USE_TLS = config('EMAIL_USE_TLS')
-EMAIL_HOST_USER = config('EMAIL_HOST_USER')
-EMAIL_HOST_PASSWORD = config('EMAIL_HOST_PASSWORD')
+EMAIL_HOST = config('SENDINBLUE_HOST_NAME')
+EMAIL_HOST_USER = config('SENDINBLUE_EMAIL_HOST_USER')
+EMAIL_HOST_PASSWORD = config('SENDINBLUE_EMAIL_PASSWORD')
+EMAIL_USE_TLS = True
+EMAIL_PORT = 587
 
 REST_USE_JWT = True
+
+GEOIP_PATH = os.path.join(BASE_DIR, 'geoip')
 
 STATICFILES_FINDERS = (
     'django.contrib.staticfiles.finders.FileSystemFinder',
@@ -248,3 +251,6 @@ SIMPLE_JWT = {
     'SLIDING_TOKEN_LIFETIME': timedelta(days=3),
     'SLIDING_TOKEN_REFRESH_LIFETIME': timedelta(days=30),
 }
+
+STATICFILES_STORAGE = "whitenoise.storage.CompressedManifestStaticFilesStorage"
+
