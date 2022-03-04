@@ -2,18 +2,18 @@ version: "3.7"
 
 services:
   # Proxies requests to internal services
-  db_techsemster:
-    image: postgres:13-alpine
-    container_name: db_techsemster
-    restart: unless-stopped
-    env_file:
-      - ./.env
-    ports:
-      - 5432:5432
-    volumes:
-      - databases:/var/lib/postgresql/data
-    networks:
-      - techsemster
+#  db_techsemster:
+#    image: postgres:13-alpine
+#    container_name: db_techsemster
+#    restart: unless-stopped
+#    env_file:
+#      - ./.env
+#    ports:
+#      - 5432:5432
+#    volumes:
+#      - databases:/var/lib/postgresql/data
+#    networks:
+#      - techsemster
 
   techsemster:
     image: techsemster
@@ -27,16 +27,16 @@ services:
       - ./.env
     ports:
     - 9001:9001
-    links:
-      - db_techsemster:db_techsemster
-    depends_on:
-      - db_techsemster
+#    links:
+#      - db_techsemster:db_techsemster
+#    depends_on:
+#      - db_techsemster
     networks:
       - techsemster
     restart: unless-stopped
 
 volumes:
-  databases:
+#  databases:
   static_media:
   static_data:
 
